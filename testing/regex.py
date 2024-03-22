@@ -181,6 +181,7 @@ test(r'(a)?b(?(1)c|d)', "bc")
 test(r'(a)?b(?(1)c|d)', "abd")
 
 # Balancing groups (too complicated)
+# test(r'''(?'open'o)+(?'between-open'c)+''', "ooccc") # will not compile
 
 """There is a lot of stuff on recursion here (https://www.regular-expressions.info/recurse.html)
 but since it's only allowed in a few regex flavors, I didn't dive into it"""
