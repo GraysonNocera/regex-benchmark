@@ -1,5 +1,7 @@
 import sys
 
+"""A simplied version of klv decoding in rebar (https://github.com/BurntSushi/rebar/blob/master/engines/python/main.py#L148)"""
+
 def parse(stdin: bytes):
   config = dict()
   print(stdin)
