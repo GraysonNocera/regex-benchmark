@@ -1,6 +1,8 @@
 import subprocess
 import os
+import re
 
+# Get these from the CLI program via stdin
 haystack = "xxxxx=xxxxxx"
 pattern = r'x=x'
 
@@ -10,25 +12,17 @@ if not os.path.exists(temp_file):
   with open(temp_file, "w") as f:
       f.write(haystack)
 
-command = "grep " + pattern + " " + temp_file
-result = subprocess.run(command, capture_output=True, shell=True, cwd=os.path.dirname(__file__), text=True)
-print(result.stderr)
-print(result.stdout)
-
-print("here now")
 command = "time grep " + pattern + " " + temp_file
 result = subprocess.run(command, capture_output=True, shell=True, cwd=os.path.dirname(__file__), text=True)
-print(result.returncode)
-print(result.stderr)
-print(result.stdout)
 
+pattern = re.compile(r'(real|user|sys)\s+(\d+)m(\d+\.\d+)s')
+output = dict()
+for line in result.stderr.splitlines():
+  match = pattern.search(line)
+  if match:
+    output[match.group(1)] = float(match.group(2)) * 60 + float(match.group(3))
 
-result = subprocess.run(["time", "grep", pattern, temp_file], capture_output=True, shell=True, cwd=os.path.dirname(__file__), text=True)
+print(output['user'])
 
-print(result.args)
-with open(os.path.join(os.path.dirname(__file__), "output"), "w") as f:
-    f.write(result.stdout)
-    f.write(result.stderr)
-
-output = [line for line in result.stdout.split("\n") if "x=x" not in line]
-print(output)
+os.remove(temp_file)
+  
