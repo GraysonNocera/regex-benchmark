@@ -1,0 +1,4 @@
+# Temporary Python packages needed, later add these to docker image
+
+hyperscan
+google-re2

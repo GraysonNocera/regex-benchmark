@@ -1,3 +1,10 @@
+"""
+Caveat: this uses Vectorscan rather than Hyperscan, but the two are similar. Vectorscan just broadens the available
+architectures that can be used with Hyperscan.
+should the CLI provide us with BLOCK, STREAM, or VECTOR mode?
+Ideally, we would run the native C engine, but python binding is quicker to get up and running.
+"""
+
 import hyperscan as hs
 from typing import Any, Optional
 import timeit
@@ -10,9 +17,6 @@ def on_match(
     id: int, from_: int, to: int, flags: int, context: Optional[Any] = None
 ) -> Optional[bool]:
     pass
-
-# Caveat: this uses Vectorscan rather than Hyperscan, but the two are similar
-# should the CLI provide us with BLOCK, STREAM, or VECTOR mode?
 
 def setup_to_timeit(pattern: str):
     import hyperscan as hs

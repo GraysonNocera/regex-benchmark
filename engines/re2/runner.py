@@ -1,3 +1,8 @@
+"""
+Trying to successfully run the re2 engine in C++ was a huge pain, so I just pip installed 'google-re2' and used the Python bindings.
+Ideally, we would run the native C++ engine, but this is a good enough solution for now.
+"""
+
 import re2
 import timeit
 
