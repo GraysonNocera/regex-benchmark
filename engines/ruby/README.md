@@ -1,1 +1,7 @@
-anyone know ruby?
+# Ruby Regex Benchmark
+
+## How to run
+
+```sh
+ruby benchmark.rb <filename>
+```

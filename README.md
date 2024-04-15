@@ -1,3 +1,10 @@
 # regex-benchmark
 
-TODO: add description and how to run
+
+## Run
+```docker build -t regex_benchmark .```
+```docker run -it -v $(pwd):/var/regex regex_benchmark```
+
+## Format of output of runner programs
+
+"[milliseconds_of_run] - [count of matches]"

@@ -1,1 +1,13 @@
-someone that knows rust could do a better job at this, or we could just use a python binding
+# Rust Regex Benchmark
+
+## How to build
+
+```sh
+cargo build --release
+```
+
+## How to run
+
+```sh
+./target/release/benchmark <filename>
+```
