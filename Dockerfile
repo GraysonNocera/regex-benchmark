@@ -1,21 +1,21 @@
-FROM ubuntu:bionic
+FROM --platform=linux/amd64 ubuntu:bionic
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install common packages
 RUN apt-get update && \
     apt-get install -yq --no-install-recommends \
-        apt-transport-https \
-        build-essential \
-        ca-certificates \
-        curl \
-        gnupg2 \
-        locales \
-        software-properties-common \
-        tzdata \
-        unzip \
-        wget \
-        git
+    apt-transport-https \
+    build-essential \
+    ca-certificates \
+    curl \
+    gnupg2 \
+    locales \
+    software-properties-common \
+    tzdata \
+    unzip \
+    wget \
+    git
 
 # Set the locale and timezone
 RUN locale-gen en_US.UTF-8 && \
@@ -27,17 +27,17 @@ ENV LC_ALL en_US.UTF-8
 
 ## C
 # PCRE is installed with PHP 8
-#RUN apt-get install -yq --no-install-recommends \
+# RUN apt-get install -yq --no-install-recommends \
 #        libpcre2-dev
 
 ## Crystal
 RUN curl -sSL https://dist.crystal-lang.org/apt/setup.sh | bash && \
     apt-get install -yq --no-install-recommends \
-        crystal
+    crystal
 
 ## C++
 RUN apt-get install -yq --no-install-recommends \
-        libboost-regex-dev && \
+    libboost-regex-dev && \
     wget -q http://www.akenotsuki.com/misc/srell/srell-latest -O srell.zip && \
     mkdir -p /tmp/srell && \
     unzip srell.zip -d /tmp/srell && \
@@ -55,7 +55,7 @@ RUN wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsof
     dpkg -i packages-microsoft-prod.deb && \
     apt-get update && \
     apt-get install -yq --no-install-recommends \
-        dotnet-sdk-5.0
+    dotnet-sdk-5.0
 
 ## D - DMD
 RUN wget -q http://downloads.dlang.org/releases/2.x/2.089.0/dmd_2.089.0-0_amd64.deb -O dmd_2.089.0-0_amd64.deb && \
@@ -63,31 +63,31 @@ RUN wget -q http://downloads.dlang.org/releases/2.x/2.089.0/dmd_2.089.0-0_amd64.
 
 ## D - LDC
 RUN apt-get install -yq --no-install-recommends \
-        ldc
+    ldc
 
 ## Dart
 RUN sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -' && \
     sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list' && \
     apt-get update && \
     apt-get install -yq --no-install-recommends \
-        dart && \
+    dart && \
     ln -s /usr/lib/dart/bin/dart2native  /usr/local/bin/dart2native
 
 ## Go
 RUN add-apt-repository ppa:longsleep/golang-backports && \
     apt-get update && \
     apt-get install -yq --no-install-recommends \
-        golang-go
+    golang-go
 
 ## Java - Open
 RUN apt-get install -yq --no-install-recommends \
-        openjdk-11-jre \
-        openjdk-11-jdk
+    openjdk-11-jre \
+    openjdk-11-jdk
 
 ## Javascript - Node
 RUN curl -sL https://deb.nodesource.com/setup_15.x | bash - && \
     apt-get install -yq --no-install-recommends \
-        nodejs
+    nodejs
 
 ## Julia
 RUN wget -q https://julialang-s3.julialang.org/bin/linux/x64/1.6/julia-1.6.0-linux-x86_64.tar.gz -O julia-1.6.0-linux-x86_64.tar.gz && \
@@ -108,19 +108,19 @@ RUN curl https://nim-lang.org/choosenim/init.sh -sSf | sh -s -- -y && \
     /root/.nimble/bin/nimble install regex -y
 
 # ## PHP
-# RUN add-apt-repository ppa:ondrej/php --yes && \
-#         apt-get update && \
-#         apt-get install -yq --no-install-recommends \
-#             libpcre2-dev \
+RUN add-apt-repository ppa:ondrej/php --yes && \
+    apt-get update && \
+    apt-get install -yq --no-install-recommends \
+    libpcre2-dev
 #             php8.0-cli
 
 ## Python 2
 RUN apt-get install -yq --no-install-recommends \
-        python2.7
+    python2.7
 
 ## Python 3
 RUN apt-get install -yq --no-install-recommends \
-        python3.6
+    python3.6
 
 ## Pyhton2 - PyPy2
 RUN wget -q https://downloads.python.org/pypy/pypy2.7-v7.3.3-linux64.tar.bz2 -O pypy2.7-v7.3.3-linux64.tar.bz2 && \
@@ -138,7 +138,7 @@ RUN wget -q https://downloads.python.org/pypy/pypy3.6-v7.3.3-linux64.tar.bz2 -O 
 
 ## Ruby
 RUN apt-get install -yq --no-install-recommends \
-        ruby-full
+    ruby-full
 
 ## Rust
 RUN wget -q https://sh.rustup.rs -O rustup-init.sh && \
@@ -148,9 +148,12 @@ RUN wget -q https://sh.rustup.rs -O rustup-init.sh && \
     echo 'export PATH=$HOME/.cargo/bin:$PATH' >> ~/.bashrc && \
     ln -s /root/.cargo/bin/cargo /usr/local/bin/cargo
 
+# Update package lists and install the time command
+RUN apt-get install -y time
+
 ## Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/regex
 
-CMD ["python", "/var/regex/run-benchmarks.py"]
+CMD ["python3", "/var/regex/run-benchmarks.py"]
