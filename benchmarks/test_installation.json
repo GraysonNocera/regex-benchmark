@@ -3,12 +3,11 @@
       "name": "Testcase 1",
       "description": "This is a testcase",
       "test_regexes": [
-          "[\\w\\.+-]+@[\\w\\.-]+\\.[\\w\\.-]+",
-          "[\\w]+://[^/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?",
-          "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])"
+          "regex",
+          "doubleregex"
       ],
       "test_string_files": [
-          "input-text.txt"
+          "testing.txt"
       ],
       "engines": [
           "grep"
