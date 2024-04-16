@@ -151,6 +151,12 @@ RUN wget -q https://sh.rustup.rs -O rustup-init.sh && \
 # Update package lists and install the time command
 RUN apt-get install -y time
 
+# pip install python bindings for re2, hyperscan
+COPY requirements.txt ./
+RUN apt-get update && apt-get install -yq python3-pip
+RUN pip3 install --no-cache-dir --upgrade pip \
+  && pip3 install --no-cache-dir -r requirements.txt
+
 ## Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
