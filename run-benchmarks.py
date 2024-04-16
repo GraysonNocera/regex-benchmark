@@ -146,13 +146,10 @@ for test_number, data in enumerate(TEST_DATA):
         path_to_csv = os.path.join("csv", csv_file_name)
         csv_outputs.append(path_to_csv)
         csv_writer = CSVWriter(path_to_csv)
-        csv_writer.write_one_row(label=test_name_no_json, data=data["test_regexes"])
+        csv_writer.write_one_row(label=test_name_no_json, data=list(range(len(data["test_regexes"]))))
 
         command = COMMANDS[engine]
         print(f"{engine} running.", end=" ")
-
-        PATTERNS_COUNT = len(data["test_regexes"])
-        current_results = [[] for _ in range(PATTERNS_COUNT)]
 
         for input_path in data["test_string_files"]:
             input_path = os.path.join(os.path.dirname(__file__), "haystacks", input_path)
