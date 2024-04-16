@@ -118,17 +118,33 @@ def build_engines():
             subprocess.run(build_cmd, shell=True)
             print(f"{language} built.")
 
+def unpack_regexes(regex_files):
+    regexes = []
+    for file in regex_files:
+        with open(file, "r") as f:
+            regexes += [x.strip("\n") for x in f.readlines()]
+
+    return regexes
+
+build_engines()
+
 print("------------------------")
 print("Running benchmarks .....")
 results = {}
+csv_outputs = []
 
 for test_number, data in enumerate(TEST_DATA):
     print("------------------------------------------")
     print(f'Running benchmarks for {data["name"]} ...')
+
+    if "regexes_in_file" in data and data["regexes_in_file"]:
+        data["test_regexes"] = unpack_regexes(data["test_regexes"])
+
     for engine in data["engines"]:
         test_name_no_json = test_name.strip(".json")
         csv_file_name = f"{engine}_{test_name_no_json}[{test_number}].csv"
         path_to_csv = os.path.join("csv", csv_file_name)
+        csv_outputs.append(path_to_csv)
         csv_writer = CSVWriter(path_to_csv)
         csv_writer.write_one_row(label=test_name_no_json, data=data["test_regexes"])
 
@@ -152,6 +168,7 @@ for test_number, data in enumerate(TEST_DATA):
                     benchmark = Benchmark(temp_file, data["test_regexes"], RUN_TIMES)
                     average_times = benchmark.run(command)
                     csv_writer.write_one_row(label=line, data=average_times)
+                    os.remove(temp_file)
             else:
                 patterns = data["test_regexes"]
                 print(f"running {input_path}, {patterns}, {RUN_TIMES}")
@@ -162,10 +179,4 @@ for test_number, data in enumerate(TEST_DATA):
             print(f" {engine} ran.")
 
     print("------------------------")
-    print("Benchmark results .....")
-
-    results = dict(sorted(results.items(), key=lambda item: item[1][-1]))
-
-    for language, result in results.items():
-        result_formatted = [f"{time:.2f}" for time in result]
-        print(f'**{language}** | {" | ".join(result_formatted)}')
+    print(f"Benchmark results written to files {csv_outputs}")
