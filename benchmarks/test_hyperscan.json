@@ -1,6 +1,6 @@
 [
   {
-      "name": "Testcase 1",
+      "name": "Hyperscan",
       "description": "This is a testcase",
       "test_regexes": [
           "regex",
@@ -10,7 +10,7 @@
           "testing.txt"
       ],
       "engines": [
-          "grep"
+          "hyperscan"
       ]
   }
 ]

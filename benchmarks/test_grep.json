@@ -1,0 +1,16 @@
+[
+  {
+      "name": "Grep",
+      "description": "This is a testcase",
+      "test_regexes": [
+          "regex",
+          "doubleregex"
+      ],
+      "test_string_files": [
+          "testing.txt"
+      ],
+      "engines": [
+          "grep"
+      ]
+  }
+]
