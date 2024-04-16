@@ -1,5 +1,6 @@
 import subprocess
 import json
+import os
 
 
 RUN_TIMES = 100
@@ -24,31 +25,32 @@ BUILDS = {
 }
 
 COMMANDS = {
-    "C PCRE2": "c/bin/benchmark",
-    "Crystal": "crystal/bin/benchmark",
-    "C++ STL": "cpp/bin/benchmark-stl",
-    "C++ Boost": "cpp/bin/benchmark-boost",
-    "C++ SRELL": "cpp/bin/benchmark-srell",
-    "C# Mono": "mono -O=all csharp/bin-mono/benchmark.exe",
-    "C# .Net Core": "dotnet csharp/bin/Release/net5.0/benchmark.dll",
-    "D dmd": "d/bin/benchmark",
-    "D ldc": "d/bin/benchmark-ldc",
-    "Dart Native": "dart/bin/benchmark",
-    "Go": "go/bin/benchmark",
-    "Java": "java -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -XX:+AlwaysPreTouch -Xmx256M -Xms256M -classpath java Benchmark",
-    "Kotlin": "kotlin kotlin/benchmark.jar",
-    "Nim": "nim/bin/benchmark",
-    "Nim Regex": "nim/bin/benchmark_regex",
-    "Perl": "perl perl/benchmark.pl",
-    "PHP": "php php/benchmark.php",
-    "Python 2": "python2.7 python/benchmark.py",
-    "Python 3": "python3.6 python/benchmark.py",
-    "Python PyPy2": "pypy2 python/benchmark.py",
-    "Python PyPy3": "pypy3 python/benchmark.py",
-    "Ruby": "ruby ruby/benchmark.rb",
-    "Rust": "rust/target/release/benchmark",
-    # TODO: add grep, hyperscan, re2, srm
-    "grep": "python3 grep/bechmark.py",
+    "C PCRE2": "engines/c/bin/benchmark",
+    "Crystal": "engines/crystal/bin/benchmark",
+    "C++ STL": "engines/cpp/bin/benchmark-stl",
+    "C++ Boost": "engines/cpp/bin/benchmark-boost",
+    "C++ SRELL": "engines/cpp/bin/benchmark-srell",
+    "C# Mono": "mono -O=all engines/csharp/bin-mono/benchmark.exe",
+    "C# .Net Core": "dotnet engines/csharp/bin/Release/net5.0/benchmark.dll",
+    "D dmd": "engines/d/bin/benchmark",
+    "D ldc": "engines/d/bin/benchmark-ldc",
+    "Dart Native": "engines/dart/bin/benchmark",
+    "Go": "engines/go/bin/benchmark",
+    "Java": "java -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -XX:+AlwaysPreTouch -Xmx256M -Xms256M -classpath engines/java Benchmark",
+    "Kotlin": "kotlin engines/kotlin/benchmark.jar",
+    "Nim": "engines/nim/bin/benchmark",
+    "Nim Regex": "engines/nim/bin/benchmark_regex",
+    "Perl": "perl engines/perl/benchmark.pl",
+    "PHP": "php engines/php/benchmark.php",
+    "Python 2": "python2.7 engines/python/benchmark.py",
+    "Python 3": "python3.6 engines/python/benchmark.py",
+    "Python PyPy2": "pypy2 engines/python/benchmark.py",
+    "Python PyPy3": "pypy3 engines/python/benchmark.py",
+    "Ruby": "ruby engines/ruby/benchmark.rb",
+    "Rust": "engines/rust/target/release/benchmark",
+    "grep": "python3 engines/grep/benchmark.py",
+    "hyperscan": "python3 engines/hyperscan/benchmark.py",
+    "re2": "python3 engines/re2/benchmark.py"
 }
 
 TEST_DATA = json.load(open("test_for_custom_regex.json", "r"))
@@ -78,6 +80,7 @@ for data in TEST_DATA:
         current_results = [[] for _ in range(PATTERNS_COUNT)]
 
         for input_text in data["test_string_files"]:
+            input_text = os.path.join(os.path.dirname(__file__), "haystacks", input_text)
             for i in range(RUN_TIMES):
                 # TODO: add support for splitting the text file, or just passing in the text not in a file
                 test_regexes = '" "'.join(data["test_regexes"])
@@ -89,8 +92,6 @@ for data in TEST_DATA:
                     stderr=subprocess.PIPE,
                 )
                 out, err = subproc.stdout, subproc.stderr
-                # print("out: ", out)
-                # print("err: ", err)
                 matches = [
                     float(match.split(b"-")[0].strip())
                     for match in out.splitlines()
