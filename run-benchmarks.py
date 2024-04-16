@@ -3,25 +3,25 @@ import json
 import os
 
 
-RUN_TIMES = 100
+RUN_TIMES = 25
 
 BUILDS = {
-    "C PCRE2": "gcc -O3 -DNDEBUG c/benchmark.c -I/usr/local/include/ -lpcre2-8 -o c/bin/benchmark",
-    "Crystal": "crystal build crystal/benchmark.cr --release -o crystal/bin/benchmark",
-    "C++ STL": "g++ -std=c++11 -O3 cpp/benchmark.cpp -o cpp/bin/benchmark-stl",
-    "C++ Boost": "g++ -std=c++11 -O3 cpp/benchmark.cpp -DUSE_BOOST -lboost_regex -o cpp/bin/benchmark-boost",
-    "C++ SRELL": "g++ -std=c++11 -O3 cpp/benchmark.cpp -DUSE_SRELL -o cpp/bin/benchmark-srell",
-    "C# Mono": "mcs csharp/Benchmark.cs -out:csharp/bin-mono/benchmark.exe -debug- -optimize",
-    "C# .Net Core": "dotnet build csharp/benchmark.csproj -c Release",
-    "D dmd": "dmd -O -release -inline -of=d/bin/benchmark d/benchmark.d",
-    "D ldc": "ldc2 -O3 -release -of=d/bin/benchmark-ldc d/benchmark.d",
-    "Dart Native": "mkdir -p /var/regex/dart/bin && dart2native dart/benchmark.dart -o dart/bin/benchmark",
-    "Go": 'go env -w GO111MODULE=auto && go build -ldflags "-s -w" -o go/bin/benchmark ./go',
-    "Java": "javac java/Benchmark.java",
-    "Kotlin": "kotlinc kotlin/benchmark.kt -include-runtime -d kotlin/benchmark.jar",
-    "Nim": "nim c -d:release --opt:speed --verbosity:0 -o:nim/bin/benchmark nim/benchmark.nim",
-    "Nim Regex": "nim c -d:release --opt:speed --verbosity:0 -o:nim/bin/benchmark_regex nim/benchmark_regex.nim",
-    "Rust": "cargo build --quiet --release --manifest-path=rust/Cargo.toml",
+    "C PCRE2": "gcc -O3 -DNDEBUG engines/c/benchmark.c -I/usr/local/include/ -lpcre2-8 -o engines/c/bin/benchmark",
+    "Crystal": "crystal build engines/crystal/benchmark.cr --release -o engines/crystal/bin/benchmark",
+    "C++ STL": "g++ -std=c++11 -O3 engines/cpp/benchmark.cpp -o engines/cpp/bin/benchmark-stl",
+    "C++ Boost": "g++ -std=c++11 -O3 engines/cpp/benchmark.cpp -DUSE_BOOST -lboost_regex -o engines/cpp/bin/benchmark-boost",
+    "C++ SRELL": "g++ -std=c++11 -O3 engines/cpp/benchmark.cpp -DUSE_SRELL -o engines/cpp/bin/benchmark-srell",
+    "C# Mono": "mcs engines/csharp/Benchmark.cs -out:engines/csharp/bin-mono/benchmark.exe -debug- -optimize",
+    "C# .Net Core": "dotnet build engines/csharp/benchmark.csproj -c Release",
+    "D dmd": "dmd -O -release -inline -of=engines/d/bin/benchmark engines/d/benchmark.d",
+    "D ldc": "ldc2 -O3 -release -of=engines/d/bin/benchmark-ldc engines/d/benchmark.d",
+    "Dart Native": "mkdir -p /var/regex/engines/dart/bin && dart2native engines/dart/benchmark.dart -o engines/dart/bin/benchmark",
+    "Go": 'go env -w GO111MODULE=auto && go build -ldflags "-s -w" -o engines/go/bin/benchmark ./go',
+    "Java": "javac engines/java/Benchmark.java",
+    "Kotlin": "kotlinc engines/kotlin/benchmark.kt -include-runtime -d engines/kotlin/benchmark.jar",
+    "Nim": "nim c -d:release --opt:speed --verbosity:0 -o:engines/nim/bin/benchmark engines/nim/benchmark.nim",
+    "Nim Regex": "nim c -d:release --opt:speed --verbosity:0 -o:engines/nim/bin/benchmark_regex engines/nim/benchmark_regex.nim",
+    "Rust": "cargo build --quiet --release --manifest-path=engines/rust/Cargo.toml",
 }
 
 COMMANDS = {
@@ -53,7 +53,7 @@ COMMANDS = {
     "re2": "python3 engines/re2/benchmark.py"
 }
 
-TEST_DATA = json.load(open("test_for_custom_regex.json", "r"))
+TEST_DATA = json.load(open("benchmarks/test_new_engines.json", "r"))
 
 
 print("-------------------------------------------")
@@ -92,6 +92,7 @@ for data in TEST_DATA:
                     stderr=subprocess.PIPE,
                 )
                 out, err = subproc.stdout, subproc.stderr
+                # print(out.decode(), err.decode())
                 matches = [
                     float(match.split(b"-")[0].strip())
                     for match in out.splitlines()
