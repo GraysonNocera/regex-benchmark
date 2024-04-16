@@ -7,8 +7,12 @@ if len(sys.argv) < 3:
     sys.exit(1)
 
 def measure(filename, pattern):
-    print(filename, file=sys.stderr)
-    command = "time grep --count " + pattern + " haystacks/" + filename
+    # print(filename, file=sys.stderr)
+
+    # The --count option does not work with -o, in my experimentation, so I have to manually count the lines
+    # from stdout
+    command = f"time grep -Po \"{pattern}\" {filename}"
+    # print(command)
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable='/bin/bash')
 
     # This assumed bash time command formatting
@@ -19,8 +23,8 @@ def measure(filename, pattern):
         output = output * 1e3 # milliseconds
     else:
         raise Exception("No match found, problem with time command")
-    
-    matches = int(result.stdout.decode())
+
+    matches = len(result.stdout.decode().splitlines())
     print(str(output) + ' - ' + str(matches))
 
 for regex in sys.argv[2:]:
