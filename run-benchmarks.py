@@ -55,28 +55,28 @@ COMMANDS = {
     "re2": "python3 engines/re2/benchmark.py"
 }
 
-test_name = "test_new_engines.json"
+test_name = "test_csv.json"
 path_to_test_file = os.path.join("benchmarks", test_name)
 TEST_DATA = json.load(open(path_to_test_file, "r"))
 
 class Benchmark:
 
-    def __init__(self, path_to_haystack: str, patterns: list(str), run_times: int):
+    def __init__(self, path_to_haystack: str, patterns: list, run_times: int):
         self.path_to_haystack = path_to_haystack
         self.patterns = patterns
         self.run_times = run_times
 
     def run(self, command: str):
-        runs = [[] * run_times]
-        for i in range(run_times):
+        runs = []
+        for i in range(self.run_times):
             # list that has length len(patterns)
             times = self.run_one(command)
-            runs[i] = times
+            runs.append(times)
 
         # returns average list of times with length len(pattern)
         runs = np.array(runs)
         average_times = runs.mean(axis=0)
-        return average_times
+        return average_times.tolist()
 
     def run_one(self, command: str) -> list:
         patterns = '" "'.join(self.patterns)
@@ -90,11 +90,24 @@ class Benchmark:
         # print(stdout.decode(), stderr.decode())
         times = [
             float(line.split(b"-")[0].strip())
-            for line in stderr.splitlines()
+            for line in stdout.splitlines()
             if line.strip()
         ]
         print(".", end="", flush=True)
         return times
+
+
+class CSVWriter:
+    def __init__(self, path_to_csv: str, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL):
+        self.f = open(path_to_csv, "w")
+        self.writer = csv.writer(self.f, delimiter=delimiter, quotechar=quotechar, quoting=quoting)
+
+    def write_one_row(self, data, label: str = ""):
+        row = [label] + data if label else data
+        self.writer.writerow(row)
+
+    def __del__(self):
+        self.f.close()
 
 def build_engines():
     print("-------------------------------------------")
@@ -105,11 +118,6 @@ def build_engines():
             subprocess.run(build_cmd, shell=True)
             print(f"{language} built.")
 
-def write_one_row(path_to_csv, row):
-    with open(path_to_csv, "a+") as f:
-        csv_writer = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        csv_writer.writerow(row)
-
 print("------------------------")
 print("Running benchmarks .....")
 results = {}
@@ -118,10 +126,11 @@ for test_number, data in enumerate(TEST_DATA):
     print("------------------------------------------")
     print(f'Running benchmarks for {data["name"]} ...')
     for engine in data["engines"]:
-        csv_file_name = f"{engine}_{test_name.strip(".json")}[{test_number}].csv"
+        test_name_no_json = test_name.strip(".json")
+        csv_file_name = f"{engine}_{test_name_no_json}[{test_number}].csv"
         path_to_csv = os.path.join("csv", csv_file_name)
-        first_row = [f"{test_name.strip(".json")}"] + [data["test_regexes"]]
-        write_one_row(path_to_csv, first_row)
+        csv_writer = CSVWriter(path_to_csv)
+        csv_writer.write_one_row(label=test_name_no_json, data=data["test_regexes"])
 
         command = COMMANDS[engine]
         print(f"{engine} running.", end=" ")
@@ -129,26 +138,26 @@ for test_number, data in enumerate(TEST_DATA):
         PATTERNS_COUNT = len(data["test_regexes"])
         current_results = [[] for _ in range(PATTERNS_COUNT)]
 
-        for input_text in data["test_string_files"]:
-            input_text = os.path.join(os.path.dirname(__file__), "haystacks", input_text)
+        for input_path in data["test_string_files"]:
+            input_path = os.path.join(os.path.dirname(__file__), "haystacks", input_path)
 
             if "split_string_file" in data and data["split_string_file"]:
                 lines = []
-                with open(input_text, "r") as f:
-                    lines = f.readlines()
+                with open(input_path, "r") as f:
+                    lines = [x.strip() for x in f.readlines()]
                 for line in lines:
                     temp_file = os.path.join(os.path.dirname(__file__), "haystacks", "temp")
                     with open(temp_file, "w") as f:
                         f.write(line)
-                    benchmark = Benchmark(line, data[test_regexes], RUN_TIMES)
+                    benchmark = Benchmark(temp_file, data["test_regexes"], RUN_TIMES)
                     average_times = benchmark.run(command)
-                    csv_row = [line] + average_times
-                    write_one_row(path_to_csv, csv_row)
+                    csv_writer.write_one_row(label=line, data=average_times)
             else:
-                benchmark = Benchmark(input_text, data[test_regexes], RUN_TIMES)
+                patterns = data["test_regexes"]
+                print(f"running {input_path}, {patterns}, {RUN_TIMES}")
+                benchmark = Benchmark(input_path, patterns, RUN_TIMES)
                 average_times = benchmark.run(command)
-                csv_row = [input_text] + average_times
-                write_one_row(path_to_csv, csv_row)
+                csv_writer.write_one_row(label=input_path, data=average_times)
 
             print(f" {engine} ran.")
 
