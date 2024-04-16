@@ -10,6 +10,10 @@ from typing import Any, Optional
 import timeit
 import sys
 
+if len(sys.argv) < 3:
+    print('Usage: python benchmark.py <input_filename> regex1 regex2 ..')
+    sys.exit(1)
+
 # A truthy return value signifies to stop matching
 matches = 0
 def on_match(
