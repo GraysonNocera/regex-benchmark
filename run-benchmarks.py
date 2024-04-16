@@ -1,6 +1,8 @@
 import subprocess
 import json
 import os
+import numpy as np
+import csv
 
 
 RUN_TIMES = 25
@@ -53,65 +55,102 @@ COMMANDS = {
     "re2": "python3 engines/re2/benchmark.py"
 }
 
-TEST_DATA = json.load(open("benchmarks/test_new_engines.json", "r"))
+test_name = "test_new_engines.json"
+path_to_test_file = os.path.join("benchmarks", test_name)
+TEST_DATA = json.load(open(path_to_test_file, "r"))
 
+class Benchmark:
 
-print("-------------------------------------------")
-print("Building compilable files for testing .....")
-list_of_test_languages = set.union(*[set(data["engines"]) for data in TEST_DATA])
-for language, build_cmd in BUILDS.items():
-    if language in list_of_test_languages:
-        subprocess.run(build_cmd, shell=True)
-        print(f"{language} built.")
+    def __init__(self, path_to_haystack: str, patterns: list(str), run_times: int):
+        self.path_to_haystack = path_to_haystack
+        self.patterns = patterns
+        self.run_times = run_times
 
+    def run(self, command: str):
+        runs = [[] * run_times]
+        for i in range(run_times):
+            # list that has length len(patterns)
+            times = self.run_one(command)
+            runs[i] = times
+
+        # returns average list of times with length len(pattern)
+        runs = np.array(runs)
+        average_times = runs.mean(axis=0)
+        return average_times
+
+    def run_one(self, command: str) -> list:
+        patterns = '" "'.join(self.patterns)
+        subproc = subprocess.run(
+            f'{command} {self.path_to_haystack} "{patterns}"',
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        stdout, stderr = subproc.stdout, subproc.stderr
+        # print(stdout.decode(), stderr.decode())
+        times = [
+            float(line.split(b"-")[0].strip())
+            for line in stderr.splitlines()
+            if line.strip()
+        ]
+        print(".", end="", flush=True)
+        return times
+
+def build_engines():
+    print("-------------------------------------------")
+    print("Building compilable files for testing .....")
+    list_of_test_languages = set.union(*[set(data["engines"]) for data in TEST_DATA])
+    for language, build_cmd in BUILDS.items():
+        if language in list_of_test_languages:
+            subprocess.run(build_cmd, shell=True)
+            print(f"{language} built.")
+
+def write_one_row(path_to_csv, row):
+    with open(path_to_csv, "a+") as f:
+        csv_writer = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        csv_writer.writerow(row)
 
 print("------------------------")
 print("Running benchmarks .....")
 results = {}
 
-for data in TEST_DATA:
+for test_number, data in enumerate(TEST_DATA):
     print("------------------------------------------")
     print(f'Running benchmarks for {data["name"]} ...')
-    for language in data["engines"]:
-        command = COMMANDS[language]
-        print(f"{language} running.", end=" ")
+    for engine in data["engines"]:
+        csv_file_name = f"{engine}_{test_name.strip(".json")}[{test_number}].csv"
+        path_to_csv = os.path.join("csv", csv_file_name)
+        first_row = [f"{test_name.strip(".json")}"] + [data["test_regexes"]]
+        write_one_row(path_to_csv, first_row)
+
+        command = COMMANDS[engine]
+        print(f"{engine} running.", end=" ")
 
         PATTERNS_COUNT = len(data["test_regexes"])
         current_results = [[] for _ in range(PATTERNS_COUNT)]
 
         for input_text in data["test_string_files"]:
             input_text = os.path.join(os.path.dirname(__file__), "haystacks", input_text)
-            for i in range(RUN_TIMES):
-                # TODO: add support for splitting the text file, or just passing in the text not in a file
-                test_regexes = '" "'.join(data["test_regexes"])
-                # print(f'{command} {input_text} "{test_regexes}"')
-                subproc = subprocess.run(
-                    f'{command} {input_text} "{test_regexes}"',
-                    shell=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                )
-                out, err = subproc.stdout, subproc.stderr
-                # print(out.decode(), err.decode())
-                matches = [
-                    float(match.split(b"-")[0].strip())
-                    for match in out.splitlines()
-                    if match.strip()
-                ]
 
-                if not matches:
-                    break
+            if "split_string_file" in data and data["split_string_file"]:
+                lines = []
+                with open(input_text, "r") as f:
+                    lines = f.readlines()
+                for line in lines:
+                    temp_file = os.path.join(os.path.dirname(__file__), "haystacks", "temp")
+                    with open(temp_file, "w") as f:
+                        f.write(line)
+                    benchmark = Benchmark(line, data[test_regexes], RUN_TIMES)
+                    average_times = benchmark.run(command)
+                    csv_row = [line] + average_times
+                    write_one_row(path_to_csv, csv_row)
+            else:
+                benchmark = Benchmark(input_text, data[test_regexes], RUN_TIMES)
+                average_times = benchmark.run(command)
+                csv_row = [input_text] + average_times
+                write_one_row(path_to_csv, csv_row)
 
-                for j in range(PATTERNS_COUNT):
-                    current_results[j].append(matches[j])
-
-                print(".", end="", flush=True)
-
-            if current_results:
-                avg_times = [sum(times) / len(times) for times in current_results]
-                results[language] = avg_times + [sum(avg_times)]
-
-            print(f" {language} ran.")
+            print(f" {engine} ran.")
 
     print("------------------------")
     print("Benchmark results .....")
