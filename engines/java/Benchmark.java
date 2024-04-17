@@ -6,29 +6,26 @@ import java.util.regex.Pattern;
 
 public final class Benchmark {
     public static void main(String... args) throws IOException {
-        if (args.length <= 1) {
-            System.out.println("Usage: java Benchmark <filename>, regex1, regex2, ...");
+        if (args.length != 3) {
+            System.out.println("Usage: java Benchmark <filename> regex numIterations");
             System.exit(1);
         }
 
         final String data = Files.readString(Paths.get(args[0]));
+        final String pattern = args[1];
+        final int numIterations = Integer.parseInt(args[2]);
 
-        for (int i = 1; i < args.length; ++i) {
-            // System.out.println("Regex " + i + ": " + args[i]);
-            measure(data, args[i]);
+        for (int i = 0; i < numIterations; ++i) {
+            measure(data, pattern);
         }
-
-        // measure(data, "[\\w.+-]+@[\\w.-]+\\.[\\w.-]+");
-        // measure(data, "[\\w]+://[^/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?");
-        // measure(data, "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])");
     }
 
     
     private static void measure(String data, String pattern) {
-        final Matcher matcher = Pattern.compile(pattern).matcher(data);
+        final Pattern compiledPattern = Pattern.compile(pattern);
 
-        // TODO: is matcher more than compiled?
         long startTime = System.nanoTime();
+        final Matcher matcher = compiledPattern.matcher(data);
         int count = 0;
         while (matcher.find()) {
             ++count;
