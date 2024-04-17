@@ -2,19 +2,19 @@ use Time::HiRes qw(gettimeofday);
 
 sub measure {
     my ($data, $pattern) = @_;
+    my $regex = qr/$pattern/;
 
-    # TODO: decouple compiling and searching
     my $start = Time::HiRes::gettimeofday();
 
-    my $count = () = $data =~ /$pattern/g;
+    my $count = () = $data =~ /$regex/g;
 
     my $elapsed = (Time::HiRes::gettimeofday() - $start) * 1e3;
 
     printf("%f - %d\n", $elapsed, $count);
 }
 
-if (@ARGV <= 1) {
-  die "Usage: ./benchmark.pl <filename> regex1 regex2 ...\n";
+if (@ARGV != 3) {
+  die "Usage: ./benchmark.pl <filename> regex numIterations\n";
 }
 
 my ($filename) = @ARGV;
@@ -24,7 +24,10 @@ my $text;
 read $fh, $data, -s $filename;
 close $fh;
 
-for (my $i = 1; $i < @ARGV; $i++) {
-  measure($data, $ARGV[$i]);
+my $pattern = $ARGV[1];
+my $numIterations = int($ARGV[2]);
+
+for (my $i = 0; $i < $numIterations; $i++) {
+  measure($data, $pattern);
 }
 

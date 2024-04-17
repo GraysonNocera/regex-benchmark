@@ -2,9 +2,10 @@ import times
 import os
 import re
 import strformat
+import std/strutils
 
-if paramCount() <= 0:
-  echo "Usage: ./benchmark <filename> regex1 regex2 regex3..."
+if paramCount() != 3:
+  echo "Usage: ./benchmark <filename> regex numIterations"
   quit(QuitFailure)
 
 proc measure(data:string, pattern:string) =
@@ -17,8 +18,8 @@ proc measure(data:string, pattern:string) =
   echo &"{elapsed_time * 1e3} - {count}"
 
 let data = readFile(paramStr(1))
+let pattern = paramStr(2)
+let numIterations = parseInt(paramStr(3))
 
-
-for i in 2..paramCount():
-  let pattern = paramStr(i)
+for i in 1..numIterations:
   measure(data, pattern)
