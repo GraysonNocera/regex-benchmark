@@ -2,3 +2,4 @@
 
 hyperscan
 google-re2
+numpy
