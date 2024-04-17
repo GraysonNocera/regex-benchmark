@@ -1,7 +1,7 @@
 const fs = require('fs')
 
-if (process.argv.length < 3) {
-  console.log('Usage: node benchmark.js <filename> regex1 regex2 ...')
+if (process.argv.length != 5) {
+  console.log('Usage: node benchmark.js <filename> regex numIterations')
   process.exit(1)
 }
 
@@ -19,8 +19,9 @@ function measure(data, pattern) {
 }
 
 const data = fs.readFileSync(process.argv[2], 'utf8')
+const pattern = process.argv[3]
+const numIterations = parseInt(process.argv[4])
 
-// TODO: test this 
-for (const regex of process.argv.slice(3)) {
-  measure(data, regex)
+for (var i = 0; i < numIterations; i++) {
+  measure(data, pattern)
 }
