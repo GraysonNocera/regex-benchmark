@@ -5,7 +5,7 @@ import numpy as np
 import csv
 
 
-RUN_TIMES = 25
+RUN_TIMES = 10
 
 BUILDS = {
     "C PCRE2": "gcc -O3 -DNDEBUG engines/c/benchmark.c -I/usr/local/include/ -lpcre2-8 -o engines/c/bin/benchmark",
@@ -93,6 +93,7 @@ class Benchmark:
             for line in stdout.splitlines()
             if line.strip()
         ]
+        print(stderr.decode())
         print(".", end="", flush=True)
         return times
 
@@ -146,7 +147,7 @@ for test_number, data in enumerate(TEST_DATA):
         path_to_csv = os.path.join("csv", csv_file_name)
         csv_outputs.append(path_to_csv)
         csv_writer = CSVWriter(path_to_csv)
-        csv_writer.write_one_row(label=test_name_no_json, data=list(range(len(data["test_regexes"]))))
+        csv_writer.write_one_row(label=test_name_no_json, data=list(range(1, len(data["test_regexes"]) + 1)))
 
         command = COMMANDS[engine]
         print(f"{engine} running.", end=" ")
