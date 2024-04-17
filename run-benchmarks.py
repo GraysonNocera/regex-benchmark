@@ -149,7 +149,7 @@ for test_number, data in enumerate(TEST_DATA):
                 lines = []
                 with open(input_path, "r") as f:
                     lines = [x.strip() for x in f.readlines()]
-                for line in lines:
+                for line_index, line in enumerate(lines):
                     temp_file = os.path.join(os.path.dirname(__file__), "haystacks", "temp")
                     with open(temp_file, "w") as f:
                         f.write(line)
@@ -159,7 +159,7 @@ for test_number, data in enumerate(TEST_DATA):
                         benchmark = Benchmark(temp_file, regex, RUN_TIMES)
                         average_times.append(benchmark.run(command))
 
-                    csv_writer.write_one_row(label=line, data=average_times)
+                    csv_writer.write_one_row(label=line_index + 1, data=average_times)
                     os.remove(temp_file)
             else:
                 patterns = data["test_regexes"]
