@@ -30,7 +30,7 @@ void measure(const std::string& data, const std::string& pattern) {
 
 int main(int argc, char** argv) {
   if (argc <= 2) {
-    std::cerr << "Usage: benchmark <filename> regex1 regex2 ..\n";
+    std::cerr << "Usage: benchmark <filename> regex num_iterations\n";
     return 1;
   }
 
@@ -41,18 +41,12 @@ int main(int argc, char** argv) {
   }
 
   const std::string data{std::istreambuf_iterator<char>{file}, std::istreambuf_iterator<char>{}};
+  char * pattern = argv[2];
+  int num_iterations = std::stoi(argv[3]);
 
-  for (int i = 2; i < argc; i++) {
-    measure(data, argv[i]);
+  for (int i = 0; i < num_iterations; i++) {
+    measure(data, pattern);
   }
-  // // Email
-  // measure(data, "[\\w.+-]+@[\\w.-]+\\.[\\w.-]+");
-
-  // // URI
-  // measure(data, "[\\w]+:\\/\\/[^\\/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?");
-
-  // // IP
-  // measure(data, "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])");
 
   return 0;
 }
