@@ -71,7 +71,7 @@ void measure(char *data, char *pattern)
 
 int main(int argc, char **argv)
 {
-  if (argc <= 2)
+  if (argc != 4)
   {
     printf("Usage: benchmark <filename> regex num_iterations\n");
     exit(1);

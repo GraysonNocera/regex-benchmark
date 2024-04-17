@@ -29,7 +29,7 @@ void measure(const std::string& data, const std::string& pattern) {
 }
 
 int main(int argc, char** argv) {
-  if (argc <= 2) {
+  if (argc != 4) {
     std::cerr << "Usage: benchmark <filename> regex num_iterations\n";
     return 1;
   }
