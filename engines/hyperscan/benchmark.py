@@ -30,6 +30,7 @@ def measure(data, pattern):
         (pattern.encode(), 0),
     )
     expressions, ids = zip(*patterns)
+    print(expressions, file=sys.stderr)
     time_to_compile = timeit.timeit(stmt=lambda: db.compile(expressions=expressions, ids=ids, elements=len(patterns)), number=1)
     print(f"time to compile: {time_to_compile}", file=sys.stderr)
 
@@ -44,5 +45,6 @@ def measure(data, pattern):
 with open(sys.argv[1], "r") as f: 
     data = f.read()
 
+    print(f"length of sys.argv: {len(sys.argv)}", file=sys.stderr)
     for regex in sys.argv[2:]:
         measure(data, regex)

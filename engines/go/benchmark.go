@@ -10,12 +10,13 @@ import (
 )
 
 func measure(data string, pattern string) {
-    start := time.Now()
 
     r, err := regexp.Compile(pattern)
     if err != nil {
         log.Fatal(err)
     }
+
+    start := time.Now()
 
     matches := r.FindAllString(data, -1)
     count := len(matches)

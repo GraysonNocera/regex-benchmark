@@ -7,8 +7,9 @@ end
 
 def measure(data, pattern)
   count = 0
+  regex = Regexp.compile(pattern)
   elapsed = Benchmark.measure {
-    count = data.scan(Regexp.compile(pattern)).size
+    count = data.scan(regex).size
   }
 
   puts "#{elapsed.real * 1e3} - #{count}"

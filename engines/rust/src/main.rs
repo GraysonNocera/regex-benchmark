@@ -3,11 +3,10 @@ use std::time::Instant;
 use regex::bytes::RegexBuilder;
 
 fn measure(data: &str, pattern: &str) {
-    let start = Instant::now();
-
     let regex = RegexBuilder::new(pattern).build().unwrap();
-    let count = regex.find_iter(data.as_bytes()).count();
 
+    let start = Instant::now();
+    let count = regex.find_iter(data.as_bytes()).count();
     let elapsed = Instant::now().duration_since(start);
 
     println!("{} - {}", elapsed.as_secs_f64() * 1e3, count);

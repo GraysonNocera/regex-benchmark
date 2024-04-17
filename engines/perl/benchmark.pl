@@ -3,6 +3,7 @@ use Time::HiRes qw(gettimeofday);
 sub measure {
     my ($data, $pattern) = @_;
 
+    # TODO: decouple compiling and searching
     my $start = Time::HiRes::gettimeofday();
 
     my $count = () = $data =~ /$pattern/g;
@@ -26,15 +27,4 @@ close $fh;
 for (my $i = 1; $i < @ARGV; $i++) {
   measure($data, $ARGV[$i]);
 }
-
-# # Email
-# measure $data, '[\w\.+-]+@[\w\.-]+\.[\w\.-]+';
-
-# # URI
-# measure $data, '[\w]+:\/\/[^\/\s?#]+[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?';
-
-# # IP
-# measure $data, '(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])';
-
-
 

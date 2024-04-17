@@ -25,9 +25,10 @@ public final class Benchmark {
 
     
     private static void measure(String data, String pattern) {
-        long startTime = System.nanoTime();
-
         final Matcher matcher = Pattern.compile(pattern).matcher(data);
+
+        // TODO: is matcher more than compiled?
+        long startTime = System.nanoTime();
         int count = 0;
         while (matcher.find()) {
             ++count;

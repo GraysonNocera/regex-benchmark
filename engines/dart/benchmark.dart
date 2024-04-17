@@ -25,9 +25,9 @@ main(List<String> arguments) {
 }
 
 measure(data, pattern){
-  var stopwatch = new Stopwatch()..start();
-
   RegExp exp = new RegExp(pattern);
+
+  var stopwatch = new Stopwatch()..start();
   Iterable<Match> matches = exp.allMatches(data);
   var count = matches.length;
 

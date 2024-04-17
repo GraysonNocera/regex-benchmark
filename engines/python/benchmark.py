@@ -8,9 +8,10 @@ if len(sys.argv) < 3:
     sys.exit(1)
 
 def measure(data, pattern):
-    start_time = timer()
 
     regex = re.compile(pattern)
+
+    start_time = timer()
     matches = re.findall(regex, data)
 
     elapsed_time = timer() - start_time

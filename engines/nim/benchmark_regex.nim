@@ -9,8 +9,9 @@ if paramCount() <= 0:
   quit(QuitFailure)
 
 proc measure(data: string, pattern: string) =
-  let time = cpuTime()
   let r_pattern = re2(pattern)
+
+  let time = cpuTime()
   let matches = data.findAll(r_pattern)
   let count = len(matches)
   let elapsed_time = cpuTime() - time 

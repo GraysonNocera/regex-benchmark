@@ -7,6 +7,8 @@ end
 
 def measure(data, pattern)
   count = 0
+
+  # TODO: figure out how to decouple compiling and searching in crystal
   elapsed = Benchmark.measure {
     count = data.scan(pattern).size
   }

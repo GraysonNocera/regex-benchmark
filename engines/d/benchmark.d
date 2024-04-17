@@ -8,6 +8,7 @@ import core.stdc.stdlib;
 void measure(string data, string pattern) {
     int count = 0;
 
+    // TODO: decouple compiling and searching
     auto sw = StopWatch(AutoStart.yes);
 
     foreach (m; data.matchAll(regex(pattern))) {

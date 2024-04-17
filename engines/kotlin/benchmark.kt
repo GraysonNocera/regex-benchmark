@@ -28,9 +28,10 @@ fun main(args: Array<String>) {
 }
 
 fun match(data: String, pattern: String) {
-    val start = System.nanoTime()
 
     val regex = Regex(pattern)
+    
+    val start = System.nanoTime()
     var results = regex.findAll(data)
     val count = results.count()
 

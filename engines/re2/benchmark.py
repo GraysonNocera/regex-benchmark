@@ -16,9 +16,8 @@ def measure(data, pattern):
   time_to_compile = timeit.timeit(stmt=lambda: re2.compile(pattern), number=1)
   print(f"time to compile: {time_to_compile}", file=sys.stderr)
 
-  pattern = re2.compile(pattern)
-
   re2.purge()
+  pattern = re2.compile(pattern)
   start = timeit.default_timer()
   matches = pattern.findall(data)
   time_to_search = timeit.default_timer() - start

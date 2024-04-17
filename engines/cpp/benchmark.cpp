@@ -15,11 +15,11 @@
 
 void measure(const std::string& data, const std::string& pattern) {
   using clock = std::chrono::high_resolution_clock;
-  const auto start = clock::now();
 
   const REGEX_NAMESPACE::regex re{pattern};
   unsigned count = 0;
 
+  const auto start = clock::now();
   for (REGEX_NAMESPACE::sregex_token_iterator it{data.cbegin(), data.cend(), re}, end{}; it != end; ++it)
     count++;
 

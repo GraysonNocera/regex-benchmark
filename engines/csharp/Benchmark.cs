@@ -32,6 +32,7 @@ class Benchmark
 
     static void Measure(string data, string pattern)
     {
+        // TODO: decouple compiling and searching
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         MatchCollection matches = Regex.Matches(data, pattern);
