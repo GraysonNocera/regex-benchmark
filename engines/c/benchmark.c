@@ -48,11 +48,11 @@ void measure(char *data, char *pattern)
 
   re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &errorcode, &erroroffset, NULL);
 
-  clock_gettime(CLOCK_MONOTONIC, &start);
-
+  // This is just for allocating memory, so it should not be considered part of the timing
   match_data = pcre2_match_data_create_from_pattern(re, NULL);
   length = strlen(data);
 
+  clock_gettime(CLOCK_MONOTONIC, &start);
   while (pcre2_match(re, (PCRE2_SPTR8)data, length, offset, 0, match_data, NULL) == 1)
   {
     count++;
@@ -60,7 +60,6 @@ void measure(char *data, char *pattern)
     ovector = pcre2_get_ovector_pointer(match_data);
     offset = ovector[1];
   }
-
   clock_gettime(CLOCK_MONOTONIC, &end);
   elapsed = ((end.tv_sec - start.tv_sec) * 1e9 + end.tv_nsec - start.tv_nsec) / 1e6;
 
@@ -74,25 +73,18 @@ int main(int argc, char **argv)
 {
   if (argc <= 2)
   {
-    printf("Usage: benchmark  <filename> regex1 regex2 ..\n");
+    printf("Usage: benchmark <filename> regex num_iterations\n");
     exit(1);
   }
 
   char *data = read_file(argv[1]);
+  char *pattern = argv[2];
+  int num_iterations = strtol(argv[3], NULL, 10);
 
-  for (int i = 2; i < argc; i++)
+  for (int i = 0; i < num_iterations; i++)
   {
-    measure(data, argv[i]);
+    measure(data, pattern);
   }
-
-  // // Email
-  // measure(data, "[\\w\\.+-]+@[\\w\\.-]+\\.[\\w\\.-]+");
-
-  // // URI
-  // measure(data, "[\\w]+://[^/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?");
-
-  // // IP
-  // measure(data, "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])");
 
   free(data);
 
