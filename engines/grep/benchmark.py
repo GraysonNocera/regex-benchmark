@@ -2,10 +2,6 @@ import subprocess
 import re
 import sys
 
-if len(sys.argv) < 3:
-    print('Usage: python benchmark.py <input_filename> regex1 regex2 ..')
-    sys.exit(1)
-
 def measure(filename, pattern):
     # print(filename, file=sys.stderr)
 
@@ -27,6 +23,14 @@ def measure(filename, pattern):
     matches = len(result.stdout.decode().splitlines())
     print(str(output) + ' - ' + str(matches))
 
-for regex in sys.argv[2:]:
-    measure(sys.argv[1], regex)
+
+if len(sys.argv) != 4:
+    print('Usage: python3 benchmark.py <input_filename> regex num_iterations')
+    sys.exit(1)
+
+num_iterations = int(sys.argv[3])
+pattern = sys.argv[2]
+
+for i in range(num_iterations):
+    measure(sys.argv[1], pattern)
 
