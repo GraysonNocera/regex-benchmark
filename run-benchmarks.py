@@ -1,9 +1,7 @@
 import subprocess
 import json
 import os
-import numpy as np
 import csv
-
 
 RUN_TIMES = 10
 
@@ -18,7 +16,7 @@ BUILDS = {
     "D dmd": "dmd -O -release -inline -of=engines/d/bin/benchmark engines/d/benchmark.d",
     "D ldc": "ldc2 -O3 -release -of=engines/d/bin/benchmark-ldc engines/d/benchmark.d",
     "Dart Native": "mkdir -p /var/regex/engines/dart/bin && dart2native engines/dart/benchmark.dart -o engines/dart/bin/benchmark",
-    "Go": 'go env -w GO111MODULE=auto && go build -ldflags "-s -w" -o engines/go/bin/benchmark ./go',
+    "Go": 'go env -w GO111MODULE=auto && go build -ldflags "-s -w" -o engines/go/bin/benchmark ./engines/go',
     "Java": "javac engines/java/Benchmark.java",
     "Kotlin": "kotlinc engines/kotlin/benchmark.kt -include-runtime -d engines/kotlin/benchmark.jar",
     "Nim": "nim c -d:release --opt:speed --verbosity:0 -o:engines/nim/bin/benchmark engines/nim/benchmark.nim",
@@ -39,7 +37,9 @@ COMMANDS = {
     "Dart Native": "engines/dart/bin/benchmark",
     "Go": "engines/go/bin/benchmark",
     "Java": "java -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -XX:+AlwaysPreTouch -Xmx256M -Xms256M -classpath engines/java Benchmark",
+    "JavaScript": "node engines/javascript/benchmark.js",
     "Kotlin": "kotlin engines/kotlin/benchmark.jar",
+    "Julia": "julia engines/julia/benchmark.jl",
     "Nim": "engines/nim/bin/benchmark",
     "Nim Regex": "engines/nim/bin/benchmark_regex",
     "Perl": "perl engines/perl/benchmark.pl",
@@ -61,41 +61,31 @@ TEST_DATA = json.load(open(path_to_test_file, "r"))
 
 class Benchmark:
 
-    def __init__(self, path_to_haystack: str, patterns: list, run_times: int):
+    def __init__(self, path_to_haystack: str, pattern: str, run_times: int):
         self.path_to_haystack = path_to_haystack
-        self.patterns = patterns
+        self.pattern = pattern
         self.run_times = run_times
 
     def run(self, command: str):
-        runs = []
-        for i in range(self.run_times):
-            # list that has length len(patterns)
-            times = self.run_one(command)
-            runs.append(times)
-
-        # returns average list of times with length len(pattern)
-        runs = np.array(runs)
-        average_times = runs.mean(axis=0)
-        return average_times.tolist()
-
-    def run_one(self, command: str) -> list:
-        patterns = '" "'.join(self.patterns)
         subproc = subprocess.run(
-            f'{command} {self.path_to_haystack} "{patterns}"',
+            f'{command} {self.path_to_haystack} "{self.pattern}" {self.run_times}',
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
         stdout, stderr = subproc.stdout, subproc.stderr
-        # print(stdout.decode(), stderr.decode())
         times = [
             float(line.split(b"-")[0].strip())
             for line in stdout.splitlines()
             if line.strip()
         ]
-        print(stderr.decode())
+
+        if not times: # some error in the runner program for this regex
+            return 0
+
+        average_time = sum(times) / len(times)
         print(".", end="", flush=True)
-        return times
+        return average_time
 
 
 class CSVWriter:
@@ -122,7 +112,7 @@ def build_engines():
 def unpack_regexes(regex_files):
     regexes = []
     for file in regex_files:
-        with open(file, "r") as f:
+        with open(os.path.join("patterns", file), "r") as f:
             regexes += [x.strip("\n") for x in f.readlines()]
 
     return regexes
@@ -163,15 +153,22 @@ for test_number, data in enumerate(TEST_DATA):
                     temp_file = os.path.join(os.path.dirname(__file__), "haystacks", "temp")
                     with open(temp_file, "w") as f:
                         f.write(line)
-                    benchmark = Benchmark(temp_file, data["test_regexes"], RUN_TIMES)
-                    average_times = benchmark.run(command)
+
+                    average_times = []
+                    for regex in data["test_regexes"]:
+                        benchmark = Benchmark(temp_file, regex, RUN_TIMES)
+                        average_times.append(benchmark.run(command))
+
                     csv_writer.write_one_row(label=line, data=average_times)
                     os.remove(temp_file)
             else:
                 patterns = data["test_regexes"]
                 print(f"running {input_path}, {patterns}, {RUN_TIMES}")
-                benchmark = Benchmark(input_path, patterns, RUN_TIMES)
-                average_times = benchmark.run(command)
+
+                average_times = []
+                for regex in data["test_regexes"]:
+                    benchmark = Benchmark(input_path, regex, RUN_TIMES)
+                    average_times.append(benchmark.run(command))
                 csv_writer.write_one_row(label=input_path, data=average_times)
 
             print(f" {engine} ran.")
