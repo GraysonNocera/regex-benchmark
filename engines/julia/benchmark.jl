@@ -1,25 +1,22 @@
 function measure(data, pattern)
 
-    # TODO: decouple compiling and searching
+    compiled_pattern = Regex(pattern)
     start = time()
-    count = length(collect(eachmatch(pattern, data)))
+    count = length(collect(eachmatch(compiled_pattern, data)))
     elapsed = time() - start
     elapsed_ms = 1000 * elapsed
 
     println(string(elapsed_ms) * " - " * string(count))
 end
 
-if length(ARGS) < 2
-    println("Usage: julia benchmark.jl <filename> regex1 regex2")
+if length(ARGS) != 3
+    println("Usage: julia benchmark.jl <filename> regex num_iterations")
     exit(1)
 end
 
-# TODO: test this
 data = open(f->read(f, String), ARGS[1])
-for i in 2:length(ARGS)
-    measure(data, ARGS[i])
+pattern = ARGS[2]
+num_iterations = parse(Int64, ARGS[3])
+for i in 1:num_iterations
+    measure(data, pattern)
 end
-
-# measure(data, r"[\w.+-]+@[\w.-]+\.[\w.-]+")
-# measure(data, r"[\w]+://[^/\s?#]+[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?")
-# measure(data, r"(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])")
