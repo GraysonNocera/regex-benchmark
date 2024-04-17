@@ -5,26 +5,19 @@ import kotlin.system.exitProcess
 import kotlin.system.measureNanoTime
 
 fun main(args: Array<String>) {
-    if (args.count() <= 1) {
-        println("Usage: kotlin benchmark.jar <filename> regex1 regex2 ... regexN");
+    if (args.count() != 3) {
+        println("Usage: kotlin benchmark.jar <filename> regex numIterations");
         exitProcess(1);
     }
 
     val inputStream: InputStream = File(args[0]).inputStream()
     val data = inputStream.bufferedReader().use { it.readText() }
+    val pattern = args[1];
+    val numIterations = args[2].toInt();
 
-
-    for (i in 1 until args.count()) {
-        match(data, args[i])
+    for (i in 0 until numIterations) {
+        match(data, pattern)
     }
-    // Email
-    // match(data, "[\\w\\.+-]+@[\\w\\.-]+\\.[\\w\\.-]+")
-
-    // URI
-    // match(data, "[\\w]+://[^/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?")
-
-    // IP
-    // match(data, "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])")
 }
 
 fun match(data: String, pattern: String) {
