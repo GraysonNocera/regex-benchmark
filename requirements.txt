@@ -3,4 +3,4 @@
 hyperscan
 google-re2
 numpy
-django==4.2.11
+django

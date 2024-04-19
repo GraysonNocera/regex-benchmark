@@ -160,6 +160,9 @@ RUN pip3 install --no-cache-dir --upgrade pip \
 ## Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /var/regex
+WORKDIR /var/regex/benchmark_server
 
-CMD ["python3", "/var/regex/run-benchmarks.py"]
+# CMD ["python3", "/var/regex/run-benchmarks.py"]
+
+CMD ["python3", "manage.py", "runserver", "[::]:8000"]
+EXPOSE 8000
