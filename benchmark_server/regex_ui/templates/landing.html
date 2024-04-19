@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Material UI Example</title>
+</head>
+
+<body>
+    <header class="bg-secondary text-white text-center py-5">
+        <h1>Regex Benchmarking</h1>
+    </header>
+
+    <div class="container mt-5">
+        <p class="text-center">This project aims to give a user friendly way to benchmark your regex and visualize the
+            output.</p>
+        <form>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter name of Test">
+            </div>
+            <div class="form-group">
+                <label for="regex">Regex</label>
+                <input type="text" class="form-control" id="regex" placeholder="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$
+                ">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" rows="3"
+                    placeholder="Enter description of Test"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="languages">Select Languages</label>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="C PCRE2" id="c-pcre2" checked>
+                            <label class="form-check-label" for="c-pcre2">
+                                C PCRE2
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Crystal" id="crystal" checked>
+                            <label class="form-check-label" for="crystal">
+                                Crystal
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="C++ STL" id="cpp-stl" checked>
+                            <label class="form-check-label" for="cpp-stl">
+                                C++ STL
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="C++ Boost" id="cpp-boost" checked>
+                            <label class="form-check-label" for="cpp-boost">
+                                C++ Boost
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="C++ SRELL" id="cpp-srell" checked>
+                            <label class="form-check-label" for="cpp-srell">
+                                C++ SRELL
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="C# Mono" id="csharp-mono" checked>
+                            <label class="form-check-label" for="csharp-mono">
+                                C# Mono
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="C# .Net Core" id="csharp-netcore"
+                                checked>
+                            <label class="form-check-label" for="csharp-netcore">
+                                C# .Net Core
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="D dmd" id="d-dmd" checked>
+                            <label class="form-check-label" for="d-dmd">
+                                D dmd
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="D ldc" id="d-ldc" checked>
+                            <label class="form-check-label" for="d-ldc">
+                                D ldc
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Dart Native" id="dart-native"
+                                checked>
+                            <label class="form-check-label" for="dart-native">
+                                Dart Native
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Go" id="go" checked>
+                            <label class="form-check-label" for="go">
+                                Go
+                            </label>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Java" id="java" checked>
+                            <label class="form-check-label" for="java">
+                                Java
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Kotlin" id="kotlin" checked>
+                            <label class="form-check-label" for="kotlin">
+                                Kotlin
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Nim" id="nim" checked>
+                            <label class="form-check-label" for="nim">
+                                Nim
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Nim Regex" id="nim-regex" checked>
+                            <label class="form-check-label" for="nim-regex">
+                                Nim Regex
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Perl" id="perl" checked>
+                            <label class="form-check-label" for="perl">
+                                Perl
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="PHP" id="php" checked>
+                            <label class="form-check-label" for="php">
+                                PHP
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Python 2" id="python2" checked>
+                            <label class="form-check-label" for="python2">
+                                Python 2
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Python 3" id="python3" checked>
+                            <label class="form-check-label" for="python3">
+                                Python 3
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Python PyPy2" id="python-pypy2"
+                                checked>
+                            <label class="form-check-label" for="python-pypy2">
+                                Python PyPy2
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Python PyPy3" id="python-pypy3"
+                                checked>
+                            <label class="form-check-label" for="python-pypy3">
+                                Python PyPy3
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Ruby" id="ruby" checked>
+                            <label class="form-check-label" for="ruby">
+                                Ruby
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Rust" id="rust" checked>
+                            <label class="form-check-label" for="rust">
+                                Rust
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-secondary">Submit</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
