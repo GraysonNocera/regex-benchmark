@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <title>Material UI Example</title>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@3.11.0/css/mdb.min.css" /> -->
 </head>
 
 <body>
@@ -16,24 +16,93 @@
     <div class="container mt-5">
         <p class="text-center">This project aims to give a user friendly way to benchmark your regex and visualize the
             output.</p>
-        <form>
+        <form action="" method="post">
+            {% csrf_token %}
             <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" placeholder="Enter name of Test">
-            </div>
-            <div class="form-group">
-                <label for="regex">Regex</label>
-                <input type="text" class="form-control" id="regex" placeholder="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$
-                ">
+                <label for="id_test_name">Name</label>
+                <input type="text" class="form-control" name="test_name" id="id_test_name"
+                    placeholder="Enter name of Test">
             </div>
 
             <div class="form-group">
-                <label for="description">Description</label>
-                <textarea class="form-control" id="description" rows="3"
+                <label for="id_regex">Regex</label>
+                <input type="text" class="form-control" name="regex" id="id_regex" placeholder="^(\+\d{1,2}\s)?$">
+            </div>
+
+            <div class="form-group">
+                <label for="id_text_file_name">Text File Name</label>
+                <input type="text" class="form-control" name="text_file_name" id="id_text_file_name"
+                    placeholder="Enter name of Text File">
+            </div>
+
+            <div class="form-group">
+                <label for="id_description">Description</label>
+                <textarea class="form-control" name="description" id="id_description" rows="3"
                     placeholder="Enter description of Test"></textarea>
             </div>
 
             <div class="form-group">
+                <label for="id_engines">Select Languages</label>
+                <script>
+                    function showSelectedItems() {
+                        var selectElement = document.getElementById("id_engines");
+                        var selectedItems = [];
+                        for (var i = 0; i < selectElement.options.length; i++) {
+                            if (selectElement.options[i].selected) {
+                                selectedItems.push(selectElement.options[i].value);
+                            }
+                        }
+                        var selectedItemsText = selectedItems.join(", ");
+                        let elem = document.getElementById("selectedItems");
+                        elem.value = selectedItemsText;
+                        console.log(elem.clientHeight, elem.scrollHeight);
+                        elem.rows -= 1;
+                        while (elem.clientHeight < elem.scrollHeight) {
+                            elem.rows += 1;
+                        }
+
+                    }
+                </script>
+                <script type="text/javascript">
+                    window.addEventListener("load", function () {
+                        showSelectedItems();
+                    }, false);
+                </script>
+                <textarea type="text" class="form-control" id="selectedItems" rows="2" disabled> </textarea>
+
+                <select multiple class="form-control" name="engines" id="id_engines" onchange="showSelectedItems()">
+                    <option value="C PCRE2" selected>C PCRE2</option>
+                    <option value="Crystal" selected>Crystal</option>
+                    <option value="C++ STL" selected>C++ STL</option>
+                    <option value="C++ Boost" selected>C++ Boost</option>
+                    <option value="C++ SRELL" selected>C++ SRELL</option>
+                    <option value="C# Mono" selected>C# Mono</option>
+                    <option value="C# .Net Core" selected>C# .Net Core</option>
+                    <option value="D dmd" selected>D dmd</option>
+                    <option value="D ldc" selected>D ldc</option>
+                    <option value="Dart Native" selected>Dart Native</option>
+                    <option value="Go" selected>Go</option>
+                    <option value="Java" selected>Java</option>
+                    <option value="Kotlin" selected>Kotlin</option>
+                    <option value="Nim" selected>Nim</option>
+                    <option value="Nim Regex" selected>Nim Regex</option>
+                    <option value="Perl" selected>Perl</option>
+                    <option value="PHP" selected>PHP</option>
+                    <option value="Python 2" selected>Python 2</option>
+                    <option value="Python 3" selected>Python 3</option>
+                    <option value="Python PyPy2" selected>Python PyPy2</option>
+                    <option value="Python PyPy3" selected>Python PyPy3</option>
+                    <option value="Ruby" selected>Ruby</option>
+                </select>
+                </select>
+
+
+                <!-- <p>Selected Items: <span id="selectedItems"></span></p> -->
+
+            </div>
+
+            <!-- <div class="form-group">
+
                 <label for="languages">Select Languages</label>
                 <div class="row">
                     <div class="col-md-6">
@@ -184,7 +253,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <button type="submit" class="btn btn-secondary">Submit</button>
         </form>
