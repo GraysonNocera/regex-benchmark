@@ -1,9 +1,14 @@
+import json
+import os
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+
 from .forms import BenchmarkForm
 from .constants import ENGINES, AVAILABLE_TEXT_FILES, PROJECT_ROOT
+
 
 def landing_page(request):
     if request.method == 'POST':
@@ -11,7 +16,10 @@ def landing_page(request):
 
         form = BenchmarkForm(request.POST)
         if form.is_valid():
-            print(form.to_json())
+            test_json = form.to_json()
+            # Save JSON to file
+            with open(os.path.join(PROJECT_ROOT, f'benchmarks/{form.cleaned_data["name"]}.json'), 'w') as file:
+                file.writelines([test_json])
             return redirect('.')  # Redirect to success page after form submission
     else:
         form = BenchmarkForm()

@@ -30,7 +30,7 @@ class BenchmarkForm(forms.Form):
             'test_string_files': self.cleaned_data['test_string_files'],
             'engines': self.cleaned_data['engines'],
         }
-        return json.dumps(data, indent=4)
+        return json.dumps([data], indent=4)
 
     def from_json(json_data):
         if isinstance(json_data, dict):

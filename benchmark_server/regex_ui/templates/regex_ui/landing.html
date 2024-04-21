@@ -18,12 +18,43 @@
             output.</p>
         <form id="testForm" action="" method="post">
             {% csrf_token %}
+
+            <script type="text/javascript">
+                window.addEventListener("load", function () {
+                    showSelectedItems();
+                }, false);
+
+                document.getElementById('testForm').addEventListener('submit', function (event) {
+                    var textareaValue = document.getElementById('selectedItems').value.trim();
+                    if (textareaValue === '') {
+                        event.preventDefault();
+                        alert('Please select atleast one engine to run benchmark on.');
+                    }
+
+                    var testNameInput = document.getElementById('id_test_name');
+                    var regex = /^[a-zA-Z0-9-_]+$/;
+                    if (!regex.test(testNameInput.value)) {
+                        testNameInput.setCustomValidity('Invalid filename. Please enter a valid filename for the test.');
+                        event.preventDefault();
+                        this.reportValidity();
+                    }
+
+                });
+            </script>
+
             <div class="form-group">
                 <label for="id_test_name">Name</label>
-                <input type="text" class="form-control" name="name" id="id_test_name" placeholder="Enter name of Test"
-                    required value="{{ form.name.value|default_if_none:'' }}">
-            </div>
 
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">test_</div>
+                    </div>
+                    <input type="text" class="form-control" name="name" id="id_test_name"
+                        placeholder="Enter name of Test" required value="{{ form.name.value|default_if_none:'' }}">
+                </div>
+
+
+            </div>
 
             <div class="form-group">
                 <script>
@@ -141,19 +172,6 @@
                             elem.rows += 1;
                         }
                     }
-                </script>
-                <script type="text/javascript">
-                    window.addEventListener("load", function () {
-                        showSelectedItems();
-                    }, false);
-
-                    document.getElementById('testForm').addEventListener('submit', function (event) {
-                        var textareaValue = document.getElementById('selectedItems').value.trim();
-                        if (textareaValue === '') {
-                            event.preventDefault();
-                            alert('Please select atleast one engine to run benchmark on.');
-                        }
-                    });
                 </script>
 
                 <textarea type="text" class="form-control" id="selectedItems" placeholder="No engines selected" rows="2"

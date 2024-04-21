@@ -6,8 +6,8 @@ import csv
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("testfile", default="test.json", help="Path to the test file")
-parser.add_argument("run_times", type=int, default=10, help="Number of times to run the benchmarks")
+parser.add_argument("testfile", default="test.json", help="Path to the test file", nargs='?')
+parser.add_argument("run_times", type=int, default=10, help="Number of times to run the benchmarks", nargs='?')
 args = parser.parse_args()
 
 RUN_TIMES = args.run_times
@@ -59,7 +59,6 @@ COMMANDS = {
     "hyperscan": "python3 engines/hyperscan/benchmark.py",
     "re2": "python3 engines/re2/benchmark.py"
 }
-
 path_to_test_file = os.path.join("benchmarks", args.testfile)
 TEST_DATA = json.load(open(path_to_test_file, "r"))
 
@@ -97,8 +96,8 @@ class Benchmark:
             for line in stdout.splitlines()
             if line.strip()
         ]
-        print(stderr.decode())
-        print(".", end="", flush=True)
+        # print(stderr.decode())
+        print(".", end="")
         return times
 
 
@@ -146,7 +145,7 @@ for test_number, data in enumerate(TEST_DATA):
         data["test_regexes"] = unpack_regexes(data["test_regexes"])
 
     for engine in data["engines"]:
-        test_name_no_json = test_name.strip(".json")
+        test_name_no_json = args.testfile.strip(".json")
         csv_file_name = f"{engine}_{test_name_no_json}[{test_number}].csv"
         path_to_csv = os.path.join("csv", csv_file_name)
         csv_outputs.append(path_to_csv)
@@ -178,7 +177,7 @@ for test_number, data in enumerate(TEST_DATA):
                 average_times = benchmark.run(command)
                 csv_writer.write_one_row(label=input_path, data=average_times)
 
-            print(f" {engine} ran.")
+            print(f"\n{engine} ran.")
 
     print("------------------------")
     print(f"Benchmark results written to files {csv_outputs}")
