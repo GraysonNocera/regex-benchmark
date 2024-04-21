@@ -47,6 +47,9 @@ def landing_page(request):
                 data[0]['name'] = data[0]['name'].replace('test_', '')
                 form = BenchmarkForm.from_json(data[0])
                 form.selected_engines = data[0]['engines']
+                form.selected_test_string_file = data[0]['test_string_files'][0]
+                form.selected_test_regexes = data[0]['test_regexes']
+                print(form.selected_test_regexes)
 
     test_files = os.listdir(os.path.join(PROJECT_ROOT, 'benchmarks')) if os.path.exists(os.path.join(PROJECT_ROOT, 'benchmarks')) else []
     data = {

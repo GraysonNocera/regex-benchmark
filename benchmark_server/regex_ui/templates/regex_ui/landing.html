@@ -26,6 +26,7 @@
                         this.setCustomValidity('');
                     });
                     handleNameInputError();
+                    editOrAddOption(this, 'id_test_regexes');
                 }, false);
 
                 document.getElementById('testForm').addEventListener('submit', function (event) {
@@ -131,13 +132,16 @@
             <div class="form-group">
                 <script>
                     function addInputField() {
-                        var div = document.createElement("div");
+                        var container = document.getElementById("last_regex");
+
+                        var div = document.createElement("div");                    
                         div.className = "form-row form-group align-items-center";
 
                         var inputdiv = document.createElement("div");
                         inputdiv.className = "col-md-11";
                         var input = document.createElement("input");
                         input.type = "text";
+                        input.value = container.firstElementChild.firstElementChild.value;
                         input.className = "form-control id_test_regexes_class";
                         input.placeholder = "^(\\+\\d{1,2}\\s)?$";
                         input.onchange = function () {
@@ -152,13 +156,13 @@
                         button.type = "button";
                         button.className = "btn btn-danger";
                         button.innerHTML = "-";
-                        button.onclick = function () { div.remove(); };
+                        button.onclick = function () { div.remove(); editOrAddOption(this, 'id_test_regexes'); };
                         buttondiv.appendChild(button);
 
                         div.appendChild(inputdiv);
                         div.appendChild(buttondiv);
-
-                        var container = document.getElementById("last_regex");
+                        
+                        container.firstElementChild.firstElementChild.value = "";
                         container.insertAdjacentElement("beforebegin", div);
                     }
                 </script>
@@ -169,11 +173,13 @@
 
                         var selectElements = document.getElementsByClassName("id_test_regexes_class");
                         for (var i = 0; i < selectElements.length; i++) {
-                            var option = document.createElement("option");
-                            option.value = selectElements[i].value;
-                            option.text = selectElements[i].value;
-                            option.selected = true;
-                            selectElement.add(option);
+                            if ( selectElements[i].value !== ""){
+                                var option = document.createElement("option");
+                                option.value = selectElements[i].value;
+                                option.text = selectElements[i].value;
+                                option.selected = true;
+                                selectElement.add(option);
+                            }
                         }
                     }
                 </script>
@@ -181,10 +187,28 @@
                     <label for="id_regex">Regex</label>
                 </div>
                 <select hidden multiple class="form-control" name="test_regexes" id="id_test_regexes"></select>
-                <div id="last_regex" class="form-row form-group align-items-center">
+
+                {% if form.selected_test_regexes %}
+                {% for regex in form.selected_test_regexes %}
+                <div class="form-row form-group align-items-center">
                     <div class="col-md-11">
                         <input type="text" class="form-control id_test_regexes_class" id="id_regex"
                             onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;" required
+                            value="{{ regex }}">
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove(); editOrAddOption(this, 'id_test_regexes')">
+                            -
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                <div id="last_regex" class="form-row form-group align-items-center">
+                    <div class="col-md-11">
+                        <input type="text" class="form-control id_test_regexes_class" id="id_regex"
+                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;" 
+                            {% if not form.selected_test_regexes %} required {% endif %}
                             placeholder="^(\+\d{1,2}\s)?$">
                     </div>
                     <div class="col-sm-1">
@@ -199,7 +223,11 @@
                 <select required class="form-control" name="test_string_files" id="id_text_file_name">
                     <option value="" selected disabled>Select text a file name</option>
                     {% for file in available_text_files %}
+                    {% if file == form.selected_test_string_file %}
+                    <option value="{{ file }}" selected>{{ file }}</option>
+                    {% else %}
                     <option value="{{ file }}">{{ file }}</option>
+                    {% endif %}
                     {% endfor %}
                 </select>
                 </select>
