@@ -1,7 +1,8 @@
+import json
+
 from django import forms
 
-from .constants import ENGINES, AVAILABLE_TEXT_FILES
-import json
+from .constants import AVAILABLE_TEXT_FILES, ENGINES
 
 
 class DynamicMultipleChoiceField(forms.MultipleChoiceField):     
@@ -17,7 +18,8 @@ class BenchmarkForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        # Add any additional validation logic here
+        if not cleaned_data['name'].startswith('test_'):
+            cleaned_data['name'] = 'test_' + cleaned_data['name']
         return cleaned_data
     
     def to_json(self):

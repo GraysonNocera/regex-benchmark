@@ -42,7 +42,6 @@
                         this.reportValidity();
                     } else {
                         testNameInput.setCustomValidity('');
-                        testNameInput.value = 'test_' + testNameInput.value;
                     }
 
                 });
@@ -164,13 +163,33 @@
                     }
                 </script>
                 <script>
+                    function clearSelectedItems() {
+                        var selectElement = document.getElementById("id_engines");
+                        for (var i = 0; i < selectElement.options.length; i++) {
+                            selectElement.options[i].selected = false;
+                        }
+
+                        showSelectedItems();
+                    }
+
                     function showSelectedItems() {
                         var selectElement = document.getElementById("id_engines");
                         var selectedItems = [];
+
+                        var inputMap = {};
+                        Array.from(document.getElementsByClassName("form-check-input")).forEach(inputField => {
+                            inputMap[inputField.value] = inputField;
+                        });
+
                         for (var i = 0; i < selectElement.options.length; i++) {
                             if (selectElement.options[i].selected) {
-                                selectedItems.push(selectElement.options[i].value);
+                                selectedItems.push(selectElement.options[i].value)
                             }
+
+                            if (selectElement.options[i].selected !== inputMap[selectElement.options[i].value].checked) {
+                                inputMap[selectElement.options[i].value].checked = selectElement.options[i].selected;
+                            }
+
                         }
                         var selectedItemsText = selectedItems.join(", ");
                         let elem = document.getElementById("selectedItems");
@@ -182,8 +201,15 @@
                     }
                 </script>
 
-                <textarea type="text" class="form-control" id="selectedItems" placeholder="No engines selected" rows="2"
-                    disabled> </textarea>
+                <div class="form-row form-group align-items-center">
+                    <div class="col-md-11">
+                        <textarea type="text" class="form-control" id="selectedItems" placeholder="No engines selected"
+                            rows="2" disabled> </textarea>
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-danger" onclick="clearSelectedItems()"> X </button>
+                    </div>
+                </div>
 
                 <select hidden multiple class="form-control" name="engines" id="id_engines"
                     onchange="showSelectedItems()">

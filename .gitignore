@@ -6,5 +6,6 @@ venv
 
 .DS_Store
 
-csv/**
+**/csv/**
 **temp
+**/runs/**
