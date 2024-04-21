@@ -6,16 +6,14 @@ import json
 
 class DynamicMultipleChoiceField(forms.MultipleChoiceField):     
     def clean(self, value):
-        print(self)
-        print("DynamicMultipleChoiceField clean", value)
         return value
 
 class BenchmarkForm(forms.Form):
-    name = forms.CharField(label='Test Name', max_length=100)
-    description = forms.CharField(label='Description', widget=forms.Textarea)
-    test_regexes = DynamicMultipleChoiceField(label='Regex', required=False)
-    test_string_files = forms.MultipleChoiceField(label='Text File Name', required=False, choices=[(file, file) for file in AVAILABLE_TEXT_FILES])
-    engines = forms.MultipleChoiceField(label='Engines', choices=[(engine, engine) for engine in ENGINES])
+    name = forms.CharField(label='Test Name', required=True, max_length=100)
+    description = forms.CharField(label='Description', required=False, widget=forms.Textarea)
+    test_regexes = DynamicMultipleChoiceField(label='Regex', required=True)
+    test_string_files = forms.MultipleChoiceField(label='Text File Name', required=True, choices=[(file, file) for file in AVAILABLE_TEXT_FILES])
+    engines = forms.MultipleChoiceField(label='Engines', required=True, choices=[(engine, engine) for engine in ENGINES])
 
     def clean(self):
         cleaned_data = super().clean()

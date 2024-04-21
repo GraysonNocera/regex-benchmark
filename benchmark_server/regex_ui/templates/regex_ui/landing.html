@@ -22,6 +22,9 @@
             <script type="text/javascript">
                 window.addEventListener("load", function () {
                     showSelectedItems();
+                    document.getElementById('id_test_name').addEventListener('input', function () {
+                        this.setCustomValidity('');
+                    });
                 }, false);
 
                 document.getElementById('testForm').addEventListener('submit', function (event) {
@@ -37,9 +40,14 @@
                         testNameInput.setCustomValidity('Invalid filename. Please enter a valid filename for the test.');
                         event.preventDefault();
                         this.reportValidity();
+                    } else {
+                        testNameInput.setCustomValidity('');
+                        testNameInput.value = 'test_' + testNameInput.value;
                     }
 
                 });
+
+
             </script>
 
             <div class="form-group">
