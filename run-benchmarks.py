@@ -1,9 +1,10 @@
-import subprocess
+import argparse
+import csv
 import json
 import os
+import subprocess
+
 import numpy as np
-import csv
-import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("testfile", default="test.json", help="Path to the test file", nargs='?')
@@ -97,7 +98,7 @@ class Benchmark:
             if line.strip()
         ]
         # print(stderr.decode())
-        print(".", end="")
+        print(".", end="", flush=True)
         return times
 
 
@@ -114,13 +115,13 @@ class CSVWriter:
         self.f.close()
 
 def build_engines():
-    print("-------------------------------------------")
-    print("Building compilable files for testing .....")
+    print("-------------------------------------------", flush=True)
+    print("Building compilable files for testing .....", flush=True)
     list_of_test_languages = set.union(*[set(data["engines"]) for data in TEST_DATA])
     for language, build_cmd in BUILDS.items():
         if language in list_of_test_languages:
-            subprocess.run(build_cmd, shell=True)
-            print(f"{language} built.")
+            subprocess.run(build_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(f"{language} built.", flush=True)
 
 def unpack_regexes(regex_files):
     regexes = []
@@ -132,14 +133,14 @@ def unpack_regexes(regex_files):
 
 build_engines()
 
-print("------------------------")
-print("Running benchmarks .....")
+print("------------------------", flush=True)
+print("Running benchmarks .....", flush=True)
 results = {}
 csv_outputs = []
 
 for test_number, data in enumerate(TEST_DATA):
-    print("------------------------------------------")
-    print(f'Running benchmarks for {data["name"]} ...')
+    print("------------------------------------------", flush=True)
+    print(f'Running benchmarks for {data["name"]} ...', flush=True)
 
     if "regexes_in_file" in data and data["regexes_in_file"]:
         data["test_regexes"] = unpack_regexes(data["test_regexes"])
@@ -153,7 +154,7 @@ for test_number, data in enumerate(TEST_DATA):
         csv_writer.write_one_row(label=test_name_no_json, data=list(range(1, len(data["test_regexes"]) + 1)))
 
         command = COMMANDS[engine]
-        print(f"{engine} running.", end=" ")
+        print(f"{engine} running.", end=" ", flush=True)
 
         for input_path in data["test_string_files"]:
             input_path = os.path.join(os.path.dirname(__file__), "haystacks", input_path)
@@ -172,12 +173,12 @@ for test_number, data in enumerate(TEST_DATA):
                     os.remove(temp_file)
             else:
                 patterns = data["test_regexes"]
-                print(f"running {input_path}, {patterns}, {RUN_TIMES}")
+                print(f"running {input_path}, {patterns}, {RUN_TIMES}", flush=True)
                 benchmark = Benchmark(input_path, patterns, RUN_TIMES)
                 average_times = benchmark.run(command)
                 csv_writer.write_one_row(label=input_path, data=average_times)
 
-            print(f"\n{engine} ran.")
+            print(f"\n{engine} ran.", flush=True)
 
-    print("------------------------")
-    print(f"Benchmark results written to files {csv_outputs}")
+    print("------------------------", flush=True)
+    print(f"Benchmark results written to files {csv_outputs}", flush=True)
