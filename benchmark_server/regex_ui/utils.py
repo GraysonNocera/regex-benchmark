@@ -30,7 +30,6 @@ def parse_output(test_name):
         return data
     
     if len(error) > 0:
-        print("Error: ", error)
         data['state'] = str(RUN_STATUS.FAILED)
         data['error'] = error
         return data

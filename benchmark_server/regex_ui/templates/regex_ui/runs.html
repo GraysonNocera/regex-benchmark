@@ -16,6 +16,17 @@
     </header>
 
     <script>
+        function reloadPage() {
+            var state = document.getElementById('state').getAttribute('state');
+            if (state != 'RUN_STATUS.COMPLETED' && state != 'RUN_STATUS.FAILED' && state != 'RUN_STATUS.CANCELLED') {
+                window.location.reload();
+            } else {
+                clearInterval(myInterval);
+            }
+        }
+
+        const myInterval = setInterval(reloadPage, 2000); // Reload the page every 5 seconds
+
         window.addEventListener('load', function () {
             var progressBars = document.querySelectorAll('.progress-bar');
             progressBars.forEach(function (progressBar) {
@@ -24,6 +35,7 @@
         });
     </script>
 
+    <div hidden id="state" state="{{ data.state }}"></div>
 
     <div class="container mt-5 text-center">
         {% if data.state == 'RUN_STATUS.NOT_STARTED' %}
@@ -37,8 +49,8 @@
         <div class="container">
 
             <div class="progress">
-                <div class="progress-bar progress-bar-animated" role="progressbar" aria-valuenow="{{ data.progress }}"
-                    aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                    aria-valuenow="{{ data.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
 
@@ -62,8 +74,8 @@
 
         <div class="container">
             <div class="progress">
-                <div class="progress-bar progress-bar-animated" role="progressbar" aria-valuenow="{{ data.progress }}"
-                    aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                    aria-valuenow="{{ data.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
 
