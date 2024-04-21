@@ -1,3 +1,4 @@
+import copy
 import json
 
 from django import forms
@@ -34,7 +35,7 @@ class BenchmarkForm(forms.Form):
 
     def from_json(json_data):
         if isinstance(json_data, dict):
-            data = json_data
+            data = copy.deepcopy(json_data)
         else:
             data = json.loads(json_data)
         

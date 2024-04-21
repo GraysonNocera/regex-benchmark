@@ -34,17 +34,29 @@ def landing_page(request):
                     process = subprocess.Popen(['python3', runbenchmark_path, f"{test_name}.json", "10" ], stdout=file, stderr=err)
             
             return redirect(f"/runs/{test_name}/")
-    else:
-        form = BenchmarkForm()
     
+    if request.method == 'GET':
+        prev_test_file = request.GET.get('prev_test')
+        print(prev_test_file)
+        form = BenchmarkForm()
+        if prev_test_file:
+            if os.path.exists(os.path.join(PROJECT_ROOT, 'benchmarks', prev_test_file)):
+                with open(os.path.join(PROJECT_ROOT, 'benchmarks', prev_test_file), 'r') as file:
+                    data = json.load(file)
+                
+                data[0]['name'] = data[0]['name'].replace('test_', '')
+                form = BenchmarkForm.from_json(data[0])
+                form.selected_engines = data[0]['engines']
 
     test_files = os.listdir(os.path.join(PROJECT_ROOT, 'benchmarks')) if os.path.exists(os.path.join(PROJECT_ROOT, 'benchmarks')) else []
     data = {
         "engine_list": ENGINES, 
         "available_text_files": AVAILABLE_TEXT_FILES, 
         "test_files": test_files,
-        "form": form
+        "form": form,
+        "prev_test": request.GET.get('prev_test')
     }
+    print(data)
     return render(request, 'regex_ui/landing.html', data)
 
 def runs(request, run_name):

@@ -25,6 +25,7 @@
                     document.getElementById('id_test_name').addEventListener('input', function () {
                         this.setCustomValidity('');
                     });
+                    handleNameInputError();
                 }, false);
 
                 document.getElementById('testForm').addEventListener('submit', function (event) {
@@ -50,14 +51,78 @@
             </script>
 
             <div class="form-group">
-                <label for="id_test_name">Name</label>
+                <script>
+                    function loadPrevious() {
+                        var selectElement = document.getElementById("id_load_previous");
+                        var selectedValue = selectElement.value;
+                        if (selectedValue) {
+                            var url = new URL(window.location.href);
+                            url.searchParams.delete("prev_test");
+                            window.location.href = url.href + (url.search ? "&" : "?") + "prev_test=" + selectedValue;
+                        }
+                    }
+                </script>
 
+                <label for="id_divider">Load previous from previous runs</label>
+                <div class="form-row align-items-center">
+                    <div class="col-md-11">
+                        <select class="form-control" name="load_previous" id="id_load_previous">
+                            <option value="" selected disabled>Select a previous run</option>
+                            {% for run in test_files %}
+                            {% if prev_test == run %}
+                            <option value="{{ run }}" selected>{{ run }}</option>
+                            {% else %}
+                            <option value="{{ run }}">{{ run }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-primary" onclick="loadPrevious()"> Load </button>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div class="row justify-content-md-center">
+                        <div class="col">
+                            <hr>
+                        </div>
+                        <div class="col-md-auto">
+                            OR
+                        </div>
+                        <div class="col">
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class=" form-group">
+                <script>
+                    function handleNameInputError() {
+                        var testFiles = {{ test_files|safe }}
+                        console.log(testFiles);
+                        var testNameInput = document.getElementById('id_test_name');
+                        var testName = "test_" + testNameInput.value + ".json";
+                        console.log(testFiles, testName, testFiles.includes(testName));
+                        if (testFiles.includes(testName)) {
+                            testNameInput.classList.add('is-invalid');
+                        } else {
+                            testNameInput.classList.remove('is-invalid');
+                        }
+                    }
+                </script>
+                <label for="id_test_name">Name</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text">test_</div>
                     </div>
                     <input type="text" class="form-control" name="name" id="id_test_name"
-                        placeholder="Enter name of Test" required value="{{ form.name.value|default_if_none:'' }}">
+                        onchange="handleNameInputError()" placeholder="Enter name of Test" required
+                        value="{{ form.name.value|default_if_none:'' }}">
+                    <div class="invalid-feedback">
+                        This test already exists. Any changes will overwrite the previous test.
+                    </div>
                 </div>
 
 
@@ -207,14 +272,19 @@
                             rows="2" disabled> </textarea>
                     </div>
                     <div class="col-sm-1">
-                        <button type="button" class="btn btn-danger" onclick="clearSelectedItems()"> X </button>
+                        <button type="button" class="btn btn-danger" onclick="clearSelectedItems()"> X
+                        </button>
                     </div>
                 </div>
 
                 <select hidden multiple class="form-control" name="engines" id="id_engines"
                     onchange="showSelectedItems()">
                     {% for engine in engine_list %}
+                    {% if engine in form.selected_engines %}
                     <option value="{{ engine }}" selected>{{ engine }}</option>
+                    {% else %}
+                    <option value="{{ engine }}">{{ engine }}</option>
+                    {% endif %}
                     {% endfor %}
                 </select>
 
