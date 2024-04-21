@@ -16,12 +16,12 @@
     <div class="container mt-5">
         <p class="text-center">This project aims to give a user friendly way to benchmark your regex and visualize the
             output.</p>
-        <form action="" method="post">
+        <form id="testForm" action="" method="post">
             {% csrf_token %}
             <div class="form-group">
                 <label for="id_test_name">Name</label>
                 <input type="text" class="form-control" name="name" id="id_test_name" placeholder="Enter name of Test"
-                    value="{{ form.name.value|default_if_none:'' }}">
+                    required value="{{ form.name.value|default_if_none:'' }}">
             </div>
 
 
@@ -81,7 +81,7 @@
                 <div id="last_regex" class="form-row form-group align-items-center">
                     <div class="col-md-11">
                         <input type="text" class="form-control id_test_regexes_class" id="id_regex"
-                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;"
+                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;" required
                             placeholder="^(\+\d{1,2}\s)?$">
                     </div>
                     <div class="col-sm-1">
@@ -93,7 +93,7 @@
 
             <div class="form-group">
                 <label for="id_text_file_name">Text File Name</label>
-                <select class="form-control" name="test_string_files" id="id_text_file_name">
+                <select required class="form-control" name="test_string_files" id="id_text_file_name">
                     <option value="" selected disabled>Select text a file name</option>
                     {% for file in available_text_files %}
                     <option value="{{ file }}">{{ file }}</option>
@@ -135,21 +135,29 @@
                         }
                         var selectedItemsText = selectedItems.join(", ");
                         let elem = document.getElementById("selectedItems");
-                        elem.value = selectedItemsText || "No engines selected";
-                        console.log(elem.clientHeight, elem.scrollHeight);
+                        elem.value = selectedItemsText;
                         elem.rows = 1;
                         while (elem.clientHeight < elem.scrollHeight) {
                             elem.rows += 1;
                         }
-
                     }
                 </script>
                 <script type="text/javascript">
                     window.addEventListener("load", function () {
                         showSelectedItems();
                     }, false);
+
+                    document.getElementById('testForm').addEventListener('submit', function (event) {
+                        var textareaValue = document.getElementById('selectedItems').value.trim();
+                        if (textareaValue === '') {
+                            event.preventDefault();
+                            alert('Please select atleast one engine to run benchmark on.');
+                        }
+                    });
                 </script>
-                <textarea type="text" class="form-control" id="selectedItems" rows="2" disabled> </textarea>
+
+                <textarea type="text" class="form-control" id="selectedItems" placeholder="No engines selected" rows="2"
+                    disabled> </textarea>
 
                 <select hidden multiple class="form-control" name="engines" id="id_engines"
                     onchange="showSelectedItems()">
