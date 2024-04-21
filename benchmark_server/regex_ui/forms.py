@@ -16,6 +16,7 @@ class BenchmarkForm(forms.Form):
     test_regexes = DynamicMultipleChoiceField(label='Regex', required=True)
     test_string_files = forms.MultipleChoiceField(label='Text File Name', required=True, choices=[(file, file) for file in AVAILABLE_TEXT_FILES])
     engines = forms.MultipleChoiceField(label='Engines', required=True, choices=[(engine, engine) for engine in ENGINES])
+    run_times = forms.IntegerField(label='Run Times', required=True, initial=10)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -29,6 +30,7 @@ class BenchmarkForm(forms.Form):
             'test_regexes': self.cleaned_data['test_regexes'],
             'description': self.cleaned_data['description'],
             'test_string_files': self.cleaned_data['test_string_files'],
+            'run_times': self.cleaned_data['run_times'],
             'engines': self.cleaned_data['engines'],
         }
         return json.dumps([data], indent=4)

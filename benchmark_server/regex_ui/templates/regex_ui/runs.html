@@ -96,6 +96,46 @@
         {% elif data.state == 'RUN_STATUS.COMPLETED' %}
         <h2 class="mt-4">State: Completed ✅</h2>
 
+        <ul class="list-group" id="accordion">
+            {% for engine, results in data.results.items %}
+            <li class="list-group-item list-group-item-success">
+                <a class="btn" data-toggle="collapse" data-target="#collapse_{{ forloop.counter }}" aria-expanded="true"
+                    aria-controls="collapse_{{ forloop.counter }}">
+                    {{ engine }}: Completed ✅
+            </li>
+            <li class="list-group-item">
+                <div id="collapse_{{ forloop.counter }}" class="collapse show" aria-labelledby="headingOne"
+                    data-parent="#accordion">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Test File Name</th>
+                                    <th colspan="{{ data.regexes_count }}" scope="col">Timing regexes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+
+                                    {% for value in result %}
+                                    <td>{{ value }}</td>
+                                    {% endfor %}
+
+
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+
+
+        </ul>
+
         {% elif data.state == 'RUN_STATUS.FAILED' %}
         <h2 class="mt-4">State: Failed ❌</h2>
         <div class="container">

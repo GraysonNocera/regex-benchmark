@@ -31,7 +31,7 @@ def landing_page(request):
 
             with open(run_file_output, 'w') as file:
                 with open(run_file_error, 'w') as err:
-                    process = subprocess.Popen(['python3', runbenchmark_path, f"{test_name}.json", "10" ], stdout=file, stderr=err)
+                    process = subprocess.Popen(['python3', runbenchmark_path, f"{test_name}.json"], stdout=file, stderr=err)
             
             return redirect(f"/runs/{test_name}/")
     
@@ -59,10 +59,10 @@ def landing_page(request):
         "form": form,
         "prev_test": request.GET.get('prev_test')
     }
-    print(data)
+    # print(data)
     return render(request, 'regex_ui/landing.html', data)
 
 def runs(request, run_name):
     data = parse_output(run_name)
-    # print(data)
+    print(data)
     return render(request, 'regex_ui/runs.html', {'data': data})

@@ -101,7 +101,7 @@
             <div class=" form-group">
                 <script>
                     function handleNameInputError() {
-                        var testFiles = {{ test_files|safe }}
+                        var testFiles = JSON.parse(`{{ test_files|safe}}`)
                         console.log(testFiles);
                         var testNameInput = document.getElementById('id_test_name');
                         var testName = "test_" + testNameInput.value + ".json";
@@ -134,7 +134,7 @@
                     function addInputField() {
                         var container = document.getElementById("last_regex");
 
-                        var div = document.createElement("div");                    
+                        var div = document.createElement("div");
                         div.className = "form-row form-group align-items-center";
 
                         var inputdiv = document.createElement("div");
@@ -161,7 +161,7 @@
 
                         div.appendChild(inputdiv);
                         div.appendChild(buttondiv);
-                        
+
                         container.firstElementChild.firstElementChild.value = "";
                         container.insertAdjacentElement("beforebegin", div);
                     }
@@ -173,7 +173,7 @@
 
                         var selectElements = document.getElementsByClassName("id_test_regexes_class");
                         for (var i = 0; i < selectElements.length; i++) {
-                            if ( selectElements[i].value !== ""){
+                            if (selectElements[i].value !== "") {
                                 var option = document.createElement("option");
                                 option.value = selectElements[i].value;
                                 option.text = selectElements[i].value;
@@ -197,7 +197,8 @@
                             value="{{ regex }}">
                     </div>
                     <div class="col-sm-1">
-                        <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove(); editOrAddOption(this, 'id_test_regexes')">
+                        <button type="button" class="btn btn-danger"
+                            onclick="this.parentElement.parentElement.remove(); editOrAddOption(this, 'id_test_regexes')">
                             -
                         </button>
                     </div>
@@ -207,16 +208,14 @@
                 <div id="last_regex" class="form-row form-group align-items-center">
                     <div class="col-md-11">
                         <input type="text" class="form-control id_test_regexes_class" id="id_regex"
-                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;" 
-                            {% if not form.selected_test_regexes %} required {% endif %}
-                            placeholder="^(\+\d{1,2}\s)?$">
+                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;"
+                            placeholder="^(\+\d{1,2}\s)?$" {% if not form.selected_test_regexes %} required {% endif %}>
                     </div>
                     <div class="col-sm-1">
                         <button type="button" class="btn btn-primary" onclick="addInputField()"> + </button>
                     </div>
                 </div>
             </div>
-
 
             <div class="form-group">
                 <label for="id_text_file_name">Text File Name</label>
@@ -237,6 +236,14 @@
                 <label for="id_description">Description</label>
                 <textarea class="form-control" name="description" id="id_description" rows="3"
                     placeholder="Enter description of Test">{{ form.description.value|default_if_none:"" }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="id_test_name">Run Times</label>
+                <input type="number" class="form-control" name="run_times" id="id_run_times"
+                    placeholder="Enter number of times to run the benchmarks"
+                    value="{{ form.run_times.value|default_if_none:10 }}">
+
             </div>
 
             <div class=" form-group">

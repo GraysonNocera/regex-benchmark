@@ -75,6 +75,24 @@ def parse_output(test_name):
 
     if len(output) == 2 + len(engines_to_build) + 4 + (3 * len(test_json['engines'])) + 2:
         data['state'] = str(RUN_STATUS.COMPLETED)
+        data['results'] = {}
+        for engine in test_json['engines']:
+            csv_file_path = os.path.join(PROJECT_ROOT, f'csv/{engine}_{test_name}[0].csv')
+            if not os.path.exists(csv_file_path):
+                data['state'] = str(RUN_STATUS.FAILED)
+                data['error'] = [f"CSV file for {engine} not found."]
+                return data
+            
+            with open(csv_file_path, 'r') as file:
+                csv_data = file.readlines()
+                result = []
+                for line in csv_data[1:]:
+                    result.append(line.split("\n")[0].split(","))
+                    result[-1][0] = os.path.basename(result[-1][0])
+            
+            data['results'][engine] = result
+            data['regexes_count'] = len(test_json['test_regexes'])
+            
         return data
 
     return data

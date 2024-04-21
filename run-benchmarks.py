@@ -158,6 +158,7 @@ for test_number, data in enumerate(TEST_DATA):
 
         for input_path in data["test_string_files"]:
             input_path = os.path.join(os.path.dirname(__file__), "haystacks", input_path)
+            run_times = data.get("run_times", RUN_TIMES)
 
             if "split_string_file" in data and data["split_string_file"]:
                 lines = []
@@ -167,14 +168,14 @@ for test_number, data in enumerate(TEST_DATA):
                     temp_file = os.path.join(os.path.dirname(__file__), "haystacks", "temp")
                     with open(temp_file, "w") as f:
                         f.write(line)
-                    benchmark = Benchmark(temp_file, data["test_regexes"], RUN_TIMES)
+                    benchmark = Benchmark(temp_file, data["test_regexes"], run_times)
                     average_times = benchmark.run(command)
                     csv_writer.write_one_row(label=line, data=average_times)
                     os.remove(temp_file)
             else:
                 patterns = data["test_regexes"]
-                print(f"running {input_path}, {patterns}, {RUN_TIMES}", flush=True)
-                benchmark = Benchmark(input_path, patterns, RUN_TIMES)
+                print(f"running {input_path}, {patterns}, {run_times}", flush=True)
+                benchmark = Benchmark(input_path, patterns, run_times)
                 average_times = benchmark.run(command)
                 csv_writer.write_one_row(label=input_path, data=average_times)
 
