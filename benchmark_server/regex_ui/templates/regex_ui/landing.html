@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@3.11.0/css/mdb.min.css" /> -->
+</head>
+
+<body>
+    <header class="bg-secondary text-white text-center py-5">
+        <h1>Regex Benchmarking</h1>
+    </header>
+
+    <div class="container mt-5">
+        <p class="text-center">This project aims to give a user friendly way to benchmark your regex and visualize the
+            output.</p>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_test_name">Name</label>
+                <input type="text" class="form-control" name="name" id="id_test_name" placeholder="Enter name of Test">
+            </div>
+
+
+            <div class="form-group">
+                <script>
+                    function addInputField() {
+                        var div = document.createElement("div");
+                        div.className = "form-row form-group align-items-center";
+
+                        var inputdiv = document.createElement("div");
+                        inputdiv.className = "col-md-11";
+                        var input = document.createElement("input");
+                        input.type = "text";
+                        input.className = "form-control id_test_regexes_class";
+                        input.name = "test_regexes";
+                        input.placeholder = "^(\\+\\d{1,2}\\s)?$";
+                        input.onchange = function () {
+                            editOrAddOption(this, 'id_test_regexes');
+                            this.oldvalue = this.value;
+                        };
+                        inputdiv.appendChild(input);
+
+                        var buttondiv = document.createElement("div");
+                        buttondiv.className = "col-sm-1";
+                        var button = document.createElement("button");
+                        button.type = "button";
+                        button.className = "btn btn-danger";
+                        button.innerHTML = "-";
+                        button.onclick = function () {
+                            div.remove();
+                        };
+                        buttondiv.appendChild(button);
+
+                        div.appendChild(inputdiv);
+                        div.appendChild(buttondiv);
+
+                        var container = document.getElementById("last_regex");
+                        container.insertAdjacentElement("beforebegin", div);
+                    }
+                </script>
+                <script>
+                    function editOrAddOption(inputDialog, selectElement) {
+                        console.log(inputDialog.oldValue, event, selectElement);
+
+                        var selectElement = document.getElementById(selectElement);
+                        selectElement.innerHTML = "";
+
+                        var selectElements = document.getElementsByClassName("id_test_regexes_class");
+
+                        for (var i = 0; i < selectElements.length; i++) {
+                            var option = document.createElement("option");
+                            option.value = selectElements[i].value;
+                            option.text = selectElements[i].value;
+                            selectElement.add(option);
+                        }
+                    }
+                </script>
+                <div class="form-row align-items-center">
+                    <label for="id_regex">Regex</label>
+                </div>
+                <select hidden multiple class="form-control" name="test_regexes" id="id_test_regexes"></select>
+                <div id="last_regex" class="form-row form-group align-items-center">
+
+                    <div class="col-md-11">
+                        <input type="text" class="form-control id_test_regexes_class" name="test_regexes_1"
+                            id="id_regex"
+                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;"
+                            placeholder="^(\+\d{1,2}\s)?$">
+                    </div>
+
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-primary" onclick="addInputField()"> + </button>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <label for="id_text_file_name">Text File Name</label>
+                <input type="text" class="form-control" name="test_string_files" id="id_text_file_name"
+                    placeholder="Enter name of Text File">
+            </div>
+
+            <div class="form-group">
+                <label for="id_description">Description</label>
+                <textarea class="form-control" name="description" id="id_description" rows="3"
+                    placeholder="Enter description of Test"></textarea>
+            </div>
+
+            <div class="form-group">
+
+                <label for="languages">Select Languages</label>
+
+                <script>
+                    function editOption(checkbox, selectElement) {
+                        var selectElement = document.getElementById(selectElement);
+                        var selectedItems = [];
+                        for (var i = 0; i < selectElement.options.length; i++) {
+                            if (selectElement.options[i].value === checkbox.value) {
+                                selectElement.options[i].selected = checkbox.checked;
+                            }
+                        }
+                        showSelectedItems();
+                    }
+                </script>
+                <script>
+                    function showSelectedItems() {
+                        var selectElement = document.getElementById("id_engines");
+                        var selectedItems = [];
+                        for (var i = 0; i < selectElement.options.length; i++) {
+                            if (selectElement.options[i].selected) {
+                                selectedItems.push(selectElement.options[i].value);
+                            }
+                        }
+                        var selectedItemsText = selectedItems.join(", ");
+                        let elem = document.getElementById("selectedItems");
+                        elem.value = selectedItemsText || "No engines selected";
+                        console.log(elem.clientHeight, elem.scrollHeight);
+                        elem.rows = 1;
+                        while (elem.clientHeight < elem.scrollHeight) {
+                            elem.rows += 1;
+                        }
+
+                    }
+                </script>
+                <script type="text/javascript">
+                    window.addEventListener("load", function () {
+                        showSelectedItems();
+                    }, false);
+                </script>
+                <textarea type="text" class="form-control" id="selectedItems" rows="2" disabled> </textarea>
+
+                <select hidden multiple class="form-control" name="engines" id="id_engines"
+                    onchange="showSelectedItems()">
+                    {% for engine in engine_list %}
+                    <option value="{{ engine }}" selected>{{ engine }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        {% for engine in engine_list %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ engine }}" checked
+                                onchange="editOption(this, 'id_engines')">
+                            <label class="form-check-label">
+                                {{ engine }}
+                            </label>
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        {% for engine in engine_list %}
+                        {% if forloop.counter|divisibleby:2 %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ engine }}" checked
+                                onchange="editOption(this, 'id_engines')">
+                            <label class="form-check-label">
+                                {{ engine }}
+                            </label>
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-secondary">Submit</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

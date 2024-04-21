@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import BenchmarkForm
+from .constants import ENGINES
 
 def landing_page(request):
     if request.method == 'POST':
@@ -16,7 +17,5 @@ def landing_page(request):
     else:
         form = BenchmarkForm()
     
-    return render(request, 'landing.html', {'form': form})
+    return render(request, 'regex_ui/landing.html', {'engine_list': ENGINES})
 
-def success(request):
-    return HttpResponse('Form submitted successfully!')
