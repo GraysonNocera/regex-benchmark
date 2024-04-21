@@ -1,3 +1,8 @@
+import os
+
+
+AVAILABLE_TEXT_FILES = os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../haystacks"))
+
 ENGINES = [
     "C PCRE2",
     "Crystal",

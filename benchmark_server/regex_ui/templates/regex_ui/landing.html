@@ -20,7 +20,8 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="id_test_name">Name</label>
-                <input type="text" class="form-control" name="name" id="id_test_name" placeholder="Enter name of Test">
+                <input type="text" class="form-control" name="name" id="id_test_name" placeholder="Enter name of Test"
+                    value="{{ form.name.value|default_if_none:'' }}">
             </div>
 
 
@@ -98,20 +99,24 @@
             </div>
 
 
-
             <div class="form-group">
                 <label for="id_text_file_name">Text File Name</label>
-                <input type="text" class="form-control" name="test_string_files" id="id_text_file_name"
-                    placeholder="Enter name of Text File">
+                <select class="form-control" name="test_string_files" id="id_text_file_name">
+                    <option value="" selected disabled>Select text a file name</option>
+                    {% for file in available_text_files %}
+                    <option value="{{ file }}">{{ file }}</option>
+                    {% endfor %}
+                </select>
+                </select>
             </div>
 
             <div class="form-group">
                 <label for="id_description">Description</label>
                 <textarea class="form-control" name="description" id="id_description" rows="3"
-                    placeholder="Enter description of Test"></textarea>
+                    placeholder="Enter description of Test">{{ form.description.value|default_if_none:"" }}</textarea>
             </div>
 
-            <div class="form-group">
+            <div class=" form-group">
 
                 <label for="languages">Select Languages</label>
 
@@ -168,9 +173,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="{{ engine }}" checked
                                 onchange="editOption(this, 'id_engines')">
-                            <label class="form-check-label">
-                                {{ engine }}
-                            </label>
+                            <label class="form-check-label">{{ engine }}</label>
                             </label>
                         </div>
                         {% endif %}
@@ -182,9 +185,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="{{ engine }}" checked
                                 onchange="editOption(this, 'id_engines')">
-                            <label class="form-check-label">
-                                {{ engine }}
-                            </label>
+                            <label class="form-check-label">{{ engine }}</label>
                             </label>
                         </div>
                         {% endif %}
@@ -193,7 +194,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-secondary">Submit</button>
+            <button type="Run Benchmark" class="btn btn-secondary">Submit</button>
         </form>
     </div>
 

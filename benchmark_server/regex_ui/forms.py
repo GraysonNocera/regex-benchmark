@@ -1,13 +1,13 @@
 from django import forms
 
-from .constants import ENGINES
+from .constants import ENGINES, AVAILABLE_TEXT_FILES
 import json
 
 class BenchmarkForm(forms.Form):
     name = forms.CharField(label='Test Name', max_length=100)
     description = forms.CharField(label='Description', widget=forms.Textarea)
     test_regexes = forms.MultipleChoiceField(label='Regex', required=False, choices=[])
-    test_string_files = forms.MultipleChoiceField(label='Text File Name', required=False, choices=[])
+    test_string_files = forms.MultipleChoiceField(label='Text File Name', required=False, choices=[(file, file) for file in AVAILABLE_TEXT_FILES])
     engines = forms.MultipleChoiceField(label='Engines', choices=[(engine, engine) for engine in ENGINES])
 
     def clean(self):
