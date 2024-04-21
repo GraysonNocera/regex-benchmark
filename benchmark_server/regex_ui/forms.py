@@ -3,10 +3,17 @@ from django import forms
 from .constants import ENGINES, AVAILABLE_TEXT_FILES
 import json
 
+
+class DynamicMultipleChoiceField(forms.MultipleChoiceField):     
+    def clean(self, value):
+        print(self)
+        print("DynamicMultipleChoiceField clean", value)
+        return value
+
 class BenchmarkForm(forms.Form):
     name = forms.CharField(label='Test Name', max_length=100)
     description = forms.CharField(label='Description', widget=forms.Textarea)
-    test_regexes = forms.MultipleChoiceField(label='Regex', required=False, choices=[])
+    test_regexes = DynamicMultipleChoiceField(label='Regex', required=False)
     test_string_files = forms.MultipleChoiceField(label='Text File Name', required=False, choices=[(file, file) for file in AVAILABLE_TEXT_FILES])
     engines = forms.MultipleChoiceField(label='Engines', choices=[(engine, engine) for engine in ENGINES])
 
@@ -23,7 +30,7 @@ class BenchmarkForm(forms.Form):
             'test_string_files': self.cleaned_data['test_string_files'],
             'engines': self.cleaned_data['engines'],
         }
-        return json.dumps(data)
+        return json.dumps(data, indent=4)
 
     def from_json(json_data):
         if isinstance(json_data, dict):

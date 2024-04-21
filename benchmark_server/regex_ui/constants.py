@@ -1,7 +1,7 @@
 import os
 
-
-AVAILABLE_TEXT_FILES = os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../haystacks"))
+PROJECT_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
+AVAILABLE_TEXT_FILES = os.listdir(os.path.join(PROJECT_ROOT, "haystacks"))
 
 ENGINES = [
     "C PCRE2",

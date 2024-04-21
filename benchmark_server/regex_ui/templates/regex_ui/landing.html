@@ -36,7 +36,6 @@
                         var input = document.createElement("input");
                         input.type = "text";
                         input.className = "form-control id_test_regexes_class";
-                        input.name = "test_regexes";
                         input.placeholder = "^(\\+\\d{1,2}\\s)?$";
                         input.onchange = function () {
                             editOrAddOption(this, 'id_test_regexes');
@@ -50,9 +49,7 @@
                         button.type = "button";
                         button.className = "btn btn-danger";
                         button.innerHTML = "-";
-                        button.onclick = function () {
-                            div.remove();
-                        };
+                        button.onclick = function () { div.remove(); };
                         buttondiv.appendChild(button);
 
                         div.appendChild(inputdiv);
@@ -64,17 +61,15 @@
                 </script>
                 <script>
                     function editOrAddOption(inputDialog, selectElement) {
-                        console.log(inputDialog.oldValue, event, selectElement);
-
                         var selectElement = document.getElementById(selectElement);
                         selectElement.innerHTML = "";
 
                         var selectElements = document.getElementsByClassName("id_test_regexes_class");
-
                         for (var i = 0; i < selectElements.length; i++) {
                             var option = document.createElement("option");
                             option.value = selectElements[i].value;
                             option.text = selectElements[i].value;
+                            option.selected = true;
                             selectElement.add(option);
                         }
                     }
@@ -84,14 +79,11 @@
                 </div>
                 <select hidden multiple class="form-control" name="test_regexes" id="id_test_regexes"></select>
                 <div id="last_regex" class="form-row form-group align-items-center">
-
                     <div class="col-md-11">
-                        <input type="text" class="form-control id_test_regexes_class" name="test_regexes_1"
-                            id="id_regex"
+                        <input type="text" class="form-control id_test_regexes_class" id="id_regex"
                             onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;"
                             placeholder="^(\+\d{1,2}\s)?$">
                     </div>
-
                     <div class="col-sm-1">
                         <button type="button" class="btn btn-primary" onclick="addInputField()"> + </button>
                     </div>

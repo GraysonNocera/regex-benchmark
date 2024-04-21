@@ -3,9 +3,14 @@ import json
 import os
 import numpy as np
 import csv
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument("testfile", default="test.json", help="Path to the test file")
+parser.add_argument("run_times", type=int, default=10, help="Number of times to run the benchmarks")
+args = parser.parse_args()
 
-RUN_TIMES = 10
+RUN_TIMES = args.run_times
 
 BUILDS = {
     "C PCRE2": "gcc -O3 -DNDEBUG engines/c/benchmark.c -I/usr/local/include/ -lpcre2-8 -o engines/c/bin/benchmark",
@@ -55,8 +60,7 @@ COMMANDS = {
     "re2": "python3 engines/re2/benchmark.py"
 }
 
-test_name = "test_csv.json"
-path_to_test_file = os.path.join("benchmarks", test_name)
+path_to_test_file = os.path.join("benchmarks", args.testfile)
 TEST_DATA = json.load(open(path_to_test_file, "r"))
 
 class Benchmark:
