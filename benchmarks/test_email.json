@@ -1,7 +1,7 @@
 [
   {
-      "name": "Hyperscan",
-      "description": "This is a testcase",
+      "name": "Email",
+      "description": "Testing email regexes and searching",
       "test_regexes": [
           "email_regex.txt"
       ],
@@ -11,9 +11,7 @@
       ],
       "split_string_file": true,
       "engines": [
-          "hyperscan",
-          "grep",
-          "D dmd"
+          "re2"
       ]
   }
 ]

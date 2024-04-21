@@ -3,17 +3,15 @@
       "name": "Hyperscan",
       "description": "This is a testcase",
       "test_regexes": [
-          "email_regex.txt"
+          "\\w+@\\w+,.com"
       ],
-      "regexes_in_file": true,
+      "regexes_in_file": false,
       "test_string_files": [
           "email_regex_text.txt"
       ],
       "split_string_file": true,
       "engines": [
-          "hyperscan",
-          "grep",
-          "D dmd"
+          "hyperscan"
       ]
   }
 ]
