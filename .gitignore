@@ -9,3 +9,4 @@ venv
 **/csv/**
 **temp
 **/runs/**
+mono_crash**

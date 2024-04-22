@@ -68,9 +68,10 @@ def parse_output(test_name):
                 data['running'][engine] = str(ENGINE_STATUS.RUNNING)
                 total = int(output[index].split(", ")[-1].strip())
                 if index + 1 < len(output):
-                    data['progress'] = output[index + 1].count(".") * 100 // total
+                    data['running']['progress'] = output[index + 1].count(".") * 100 // total
             index += 3
 
+        data['progress'] = sum([1 for status in data['running'].values() if status == str(ENGINE_STATUS.COMPLETED)]) * 100 // len(data['running'])
         return data
 
     if len(output) == 2 + len(engines_to_build) + 4 + (3 * len(test_json['engines'])) + 2:
@@ -89,6 +90,7 @@ def parse_output(test_name):
                 for line in csv_data[1:]:
                     result.append(line.split("\n")[0].split(","))
                     result[-1][0] = os.path.basename(result[-1][0])
+                    result[-1][1:] = ["%.03f ms" % float(x) for x in result[-1][1:]]
             
             data['results'][engine] = result
             data['regexes_count'] = len(test_json['test_regexes'])

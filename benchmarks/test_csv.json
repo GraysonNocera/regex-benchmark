@@ -1,17 +1,17 @@
 [
-  {
-      "name": "Hyperscan",
-      "description": "This is a testcase",
-      "test_regexes": [
-          "patterns/email_regex.txt"
-      ],
-      "regexes_in_file": true,
-      "test_string_files": [
-          "testing.txt"
-      ],
-      "split_string_file": true,
-      "engines": [
-          "hyperscan"
-      ]
-  }
+    {
+        "name": "Hyperscan",
+        "description": "This is a testcase",
+        "test_regexes": [
+            "patterns/email_regex.txt"
+        ],
+        "regexes_in_file": true,
+        "test_string_files": [
+            "testing.txt"
+        ],
+        "split_string_file": true,
+        "engines": [
+            "Hyperscan"
+        ]
+    }
 ]

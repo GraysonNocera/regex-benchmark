@@ -13,8 +13,6 @@ from .utils import create_dir_if_not_exists, parse_output
 
 def landing_page(request):
     if request.method == 'POST':
-        print(request.POST)
-
         form = BenchmarkForm(request.POST)
         if form.is_valid():
             test_json = form.to_json()
@@ -37,7 +35,6 @@ def landing_page(request):
     
     if request.method == 'GET':
         prev_test_file = request.GET.get('prev_test')
-        print(prev_test_file)
         form = BenchmarkForm()
         if prev_test_file:
             if os.path.exists(os.path.join(PROJECT_ROOT, 'benchmarks', prev_test_file)):
@@ -64,5 +61,5 @@ def landing_page(request):
 
 def runs(request, run_name):
     data = parse_output(run_name)
-    print(data)
+    # print(data)
     return render(request, 'regex_ui/runs.html', {'data': data})

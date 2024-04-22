@@ -46,6 +46,12 @@
                         testNameInput.setCustomValidity('');
                     }
 
+                    var selectElement = document.getElementById('id_test_regexes');
+                    if (selectElement.options.length === 0) {
+                        event.preventDefault();
+                        alert('Please enter atleast one regex to run the benchmark.');
+                    }
+
                 });
 
 
@@ -101,12 +107,10 @@
             <div class=" form-group">
                 <script>
                     function handleNameInputError() {
-                        var testFiles = JSON.parse(`{{ test_files|safe}}`)
-                        console.log(testFiles);
+                        var test_files = `{{ test_files|safe }}`;
                         var testNameInput = document.getElementById('id_test_name');
                         var testName = "test_" + testNameInput.value + ".json";
-                        console.log(testFiles, testName, testFiles.includes(testName));
-                        if (testFiles.includes(testName)) {
+                        if (test_files.includes(testName)) {
                             testNameInput.classList.add('is-invalid');
                         } else {
                             testNameInput.classList.remove('is-invalid');

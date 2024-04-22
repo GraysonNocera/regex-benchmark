@@ -1,16 +1,16 @@
 [
-  {
-      "name": "Hyperscan",
-      "description": "This is a testcase",
-      "test_regexes": [
-          "regex",
-          "doubleregex"
-      ],
-      "test_string_files": [
-          "testing.txt"
-      ],
-      "engines": [
-          "hyperscan"
-      ]
-  }
+    {
+        "name": "Hyperscan",
+        "description": "This is a testcase",
+        "test_regexes": [
+            "regex",
+            "doubleregex"
+        ],
+        "test_string_files": [
+            "testing.txt"
+        ],
+        "engines": [
+            "Hyperscan"
+        ]
+    }
 ]

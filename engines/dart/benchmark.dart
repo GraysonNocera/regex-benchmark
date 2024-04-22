@@ -33,5 +33,5 @@ measure(data, pattern){
 
   stopwatch.stop();
 
-  print('${stopwatch.elapsedMicroseconds / 1e3} ${count}');
+  print('${stopwatch.elapsedMicroseconds / 1e3} - ${count}');
 }

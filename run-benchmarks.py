@@ -23,8 +23,8 @@ BUILDS = {
     "C# .Net Core": "dotnet build engines/csharp/benchmark.csproj -c Release",
     "D dmd": "dmd -O -release -inline -of=engines/d/bin/benchmark engines/d/benchmark.d",
     "D ldc": "ldc2 -O3 -release -of=engines/d/bin/benchmark-ldc engines/d/benchmark.d",
-    "Dart Native": "mkdir -p /var/regex/engines/dart/bin && dart2native engines/dart/benchmark.dart -o engines/dart/bin/benchmark",
-    "Go": 'go env -w GO111MODULE=auto && go build -ldflags "-s -w" -o engines/go/bin/benchmark ./go',
+    "Dart Native": "mkdir -p /var/regex/engines/dart/bin && dart compile aot-snapshot engines/dart/benchmark.dart -o engines/dart/bin/benchmark.aot",
+    "Go": 'go env -w GO111MODULE=auto && go build -ldflags "-s -w" -o engines/go/bin/benchmark ./engines/go',
     "Java": "javac engines/java/Benchmark.java",
     "Kotlin": "kotlinc engines/kotlin/benchmark.kt -include-runtime -d engines/kotlin/benchmark.jar",
     "Nim": "nim c -d:release --opt:speed --verbosity:0 -o:engines/nim/bin/benchmark engines/nim/benchmark.nim",
@@ -42,7 +42,7 @@ COMMANDS = {
     "C# .Net Core": "dotnet engines/csharp/bin/Release/net5.0/benchmark.dll",
     "D dmd": "engines/d/bin/benchmark",
     "D ldc": "engines/d/bin/benchmark-ldc",
-    "Dart Native": "engines/dart/bin/benchmark",
+    "Dart Native": "/usr/lib/dart/bin/dartaotruntime engines/dart/bin/benchmark.aot",
     "Go": "engines/go/bin/benchmark",
     "Java": "java -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -XX:+AlwaysPreTouch -Xmx256M -Xms256M -classpath engines/java Benchmark",
     "Kotlin": "kotlin engines/kotlin/benchmark.jar",
@@ -56,9 +56,9 @@ COMMANDS = {
     "Python PyPy3": "pypy3 engines/python/benchmark.py",
     "Ruby": "ruby engines/ruby/benchmark.rb",
     "Rust": "engines/rust/target/release/benchmark",
-    "grep": "python3 engines/grep/benchmark.py",
-    "hyperscan": "python3 engines/hyperscan/benchmark.py",
-    "re2": "python3 engines/re2/benchmark.py"
+    "Grep": "python3 engines/grep/benchmark.py",
+    "Hyperscan": "python3 engines/hyperscan/benchmark.py",
+    "Re2": "python3 engines/re2/benchmark.py"
 }
 path_to_test_file = os.path.join("benchmarks", args.testfile)
 TEST_DATA = json.load(open(path_to_test_file, "r"))
@@ -88,9 +88,8 @@ class Benchmark:
             f'{command} {self.path_to_haystack} "{patterns}"',
             shell=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
         )
-        stdout, stderr = subproc.stdout, subproc.stderr
+        stdout = subproc.stdout
         # print(stdout.decode(), stderr.decode())
         times = [
             float(line.split(b"-")[0].strip())
@@ -120,7 +119,7 @@ def build_engines():
     list_of_test_languages = set.union(*[set(data["engines"]) for data in TEST_DATA])
     for language, build_cmd in BUILDS.items():
         if language in list_of_test_languages:
-            subprocess.run(build_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(build_cmd, shell=True, stdout=subprocess.PIPE)
             print(f"{language} built.", flush=True)
 
 def unpack_regexes(regex_files):

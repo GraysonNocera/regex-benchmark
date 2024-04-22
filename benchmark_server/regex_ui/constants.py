@@ -6,26 +6,28 @@ AVAILABLE_TEXT_FILES = os.listdir(os.path.join(PROJECT_ROOT, "haystacks"))
 
 ENGINES = [
     "C PCRE2",
-    "Crystal",
-    "C++ STL",
+    "C# .Net Core",
     "C++ Boost",
     "C++ SRELL",
-    "C# Mono",
-    "C# .Net Core",
+    "C++ STL",
+    "Crystal",
     "D dmd",
     "D ldc",
     "Dart Native",
     "Go",
+    "Grep",
+    "Hyperscan",
     "Java",
     "Kotlin",
     "Nim",
     "Nim Regex",
-    "Perl",
     "PHP",
+    "Perl",
     "Python 2",
     "Python 3",
     "Python PyPy2",
     "Python PyPy3",
+    "Re2",
     "Ruby",
     "Rust"
 ]
@@ -36,7 +38,6 @@ BUILDS = [
     "C++ STL",
     "C++ Boost",
     "C++ SRELL",
-    "C# Mono",
     "C# .Net Core",
     "D dmd",
     "D ldc",
@@ -46,7 +47,7 @@ BUILDS = [
     "Kotlin",
     "Nim",
     "Nim Regex",
-    "Rust",
+    "Rust"
 ]
 
 class RUN_STATUS(Enum):

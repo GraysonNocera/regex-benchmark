@@ -47,7 +47,6 @@
             </div>
         </h2>
         <div class="container">
-
             <div class="progress">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                     aria-valuenow="{{ data.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
@@ -86,6 +85,13 @@
                 <li class="list-group-item">{{ engine }}: Not Started 🚫</li>
                 {% elif status == 'ENGINE_STATUS.RUNNING' %}
                 <li class="list-group-item list-group-item-primary">{{ engine }}: Running...</li>
+                <div class="container">
+                    <div class="progress">
+                        <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
+                            role="progressbar" aria-valuenow="{{ data.running.progress }}" aria-valuemin="0"
+                            aria-valuemax="100"></div>
+                    </div>
+                </div>
                 {% elif status == 'ENGINE_STATUS.COMPLETED' %}
                 <li class="list-group-item list-group-item-success">{{ engine }}: Completed ✅</li>
                 {% endif %}
@@ -117,15 +123,11 @@
                             <tbody>
                                 {% for result in results %}
                                 <tr>
-
                                     {% for value in result %}
                                     <td>{{ value }}</td>
                                     {% endfor %}
-
-
                                 </tr>
                                 {% endfor %}
-
                             </tbody>
                         </table>
                     </div>
