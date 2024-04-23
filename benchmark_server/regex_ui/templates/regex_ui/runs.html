@@ -113,6 +113,12 @@
                 <div id="collapse_{{ forloop.counter }}" class="collapse show" aria-labelledby="headingOne"
                     data-parent="#accordion">
                     <div class="card-body">
+                        {% for engine2, plot_url in data.plots.items %}
+                        {% if engine == engine2 %}
+                        <img src="data:image/png;base64, {{ plot_url }}">
+                        {% endif %}
+                        {% endfor %}
+
                         <table class="table">
                             <thead>
                                 <tr>

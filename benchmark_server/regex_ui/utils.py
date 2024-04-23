@@ -3,6 +3,7 @@ import os
 import subprocess
 
 from .constants import BUILDS, ENGINE_STATUS, PROJECT_ROOT, RUN_STATUS
+from .visualize import plot_result
 
 
 def create_dir_if_not_exists(dir_path):
@@ -78,6 +79,7 @@ def parse_output(test_name):
     if len(output) == 2 + len(engines_to_build) + 4 + (3 * len(test_json['engines'])) + 2:
         data['state'] = str(RUN_STATUS.COMPLETED)
         data['results'] = {}
+        data['plots'] = {}
         for engine in test_json['engines']:
             csv_file_path = os.path.join(PROJECT_ROOT, f'csv/{engine}_{test_name}[0].csv')
             if not os.path.exists(csv_file_path):
@@ -88,13 +90,26 @@ def parse_output(test_name):
             with open(csv_file_path, 'r') as file:
                 csv_data = file.readlines()
                 result = []
+                no_of_regexes = len(csv_data[0].split(",")[1:])
                 for line in csv_data[1:]:
                     result.append(line.split("\n")[0].split(","))
-                    result[-1][0] = os.path.basename(result[-1][0])
-                    result[-1][1:] = ["%.03f ms" % float(x) for x in result[-1][1:]]
+                    result[-1][0] = ''.join(result[-1][:-no_of_regexes])
+                    try:
+                        result[-1][0] = os.path.basename(result[-1][0])
+                    except:
+                        pass
+                    
+                    if len(result[-1][0]) > 20:
+                        result[-1][0] = result[-1][0][:20] + "..."
+                    
+                    result[-1][1:] = ["%.03f ms" % float(x) for x in result[-1][-no_of_regexes:]]
+                    
             
             data['results'][engine] = result
+            data['plots'][engine] = plot_result(data['results'][engine])
+            data['regexes'] = test_json['test_regexes']
             data['regexes_count'] = len(test_json['test_regexes'])
+    
             
         return data
 
