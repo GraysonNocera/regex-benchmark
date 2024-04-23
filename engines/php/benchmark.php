@@ -9,12 +9,16 @@ $data  = file_get_contents($argv[1]);
 $pattern = $argv[2];
 $num_iterations = intval($argv[3]);
 
-for ($i = 0; $i < num_iterations; $i++) {
+for ($i = 0; $i < $num_iterations; $i++) {
     measure($data, $pattern);
 }
 
 function measure($data, $pattern) {
-    $compiled_pattern = /$pattern/;
+    // Add engine delimiter if not present
+    if ($pattern[0] !== '/') {
+        $pattern = '/' . $pattern . '/';
+    }
+    $compiled_pattern = $pattern;
 
     $startTime = microtime(true);
     $count = preg_match_all($compiled_pattern, $data, $matches);

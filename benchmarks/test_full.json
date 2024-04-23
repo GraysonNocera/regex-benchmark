@@ -1,0 +1,40 @@
+[
+    {
+        "name": "test_full",
+        "test_regexes": [
+            "^parth$"
+        ],
+        "description": "Complete set of benchmarks",
+        "test_string_files": [
+            "input-text.txt"
+        ],
+        "run_times": 20,
+        "engines": [
+            "C PCRE2",
+            "C# .Net Core",
+            "C++ Boost",
+            "C++ SRELL",
+            "C++ STL",
+            "Crystal",
+            "D dmd",
+            "D ldc",
+            "Dart Native",
+            "Go",
+            "Grep",
+            "Hyperscan",
+            "Java",
+            "Kotlin",
+            "Nim",
+            "Nim Regex",
+            "PHP",
+            "Perl",
+            "Python 2",
+            "Python 3",
+            "Python PyPy2",
+            "Python PyPy3",
+            "Re2",
+            "Ruby",
+            "Rust"
+        ]
+    }
+]

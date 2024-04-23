@@ -1,21 +1,21 @@
 [
-  {
-      "name": "Testcase 1",
-      "description": "This is a testcase",
-      "test_regexes": [
-          "[\\w\\.+-]+@[\\w\\.-]+\\.[\\w\\.-]+",
-          "[\\w]+://[^/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?",
-          "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])"
-      ],
-      "test_string_files": [
-          "input-text.txt",
-          "email_regex_text.txt"
-      ],
-      "split_string_file": true,
-      "engines": [
-          "grep",
-          "re2",
-          "hyperscan"
-      ]
-  }
+    {
+        "name": "Testcase 1",
+        "description": "This is a testcase",
+        "test_regexes": [
+            "[\\w\\.+-]+@[\\w\\.-]+\\.[\\w\\.-]+",
+            "[\\w]+://[^/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?",
+            "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])"
+        ],
+        "test_string_files": [
+            "input-text.txt",
+            "email_regex_text.txt"
+        ],
+        "split_string_file": true,
+        "engines": [
+            "Grep",
+            "Re2",
+            "Hyperscan"
+        ]
+    }
 ]

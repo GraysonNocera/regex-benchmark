@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@3.11.0/css/mdb.min.css" /> -->
+</head>
+
+<body>
+    <header class="bg-secondary text-white text-center py-5">
+        <h1>Regex Benchmarking</h1>
+    </header>
+
+    <div class="container mt-5">
+        <p class="text-center">
+            This project aims to give a user friendly way to benchmark your regex and visualize the output.
+        </p>
+    </div>
+
+    <div class="container mt-5">
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <h3 class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+                            aria-controls="collapseOne">
+                            Previous Benchmarks Results
+                        </h3>
+                    </h5>
+                </div>
+
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        {% for benchmark in running_benchmarks %}
+                        <li>
+                            <a href="{% url 'runs' benchmark %}">
+                                {{ benchmark }}
+                                <div class="spinner-grow spinner-grow-sm m-0 text-success" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                        {% for run in prev_runs %}
+                        <li>
+                            <a href="{% url 'runs' run %}">
+                                {{ run }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="container mt-5">
+
+
+        <form id="testForm" action="" method="post">
+            {% csrf_token %}
+
+            <script type="text/javascript">
+                window.addEventListener("load", function () {
+                    showSelectedItems();
+                    document.getElementById('id_test_name').addEventListener('input', function () {
+                        this.setCustomValidity('');
+                    });
+                    handleNameInputError();
+                    editOrAddOption(this, 'id_test_regexes');
+                }, false);
+
+                document.getElementById('testForm').addEventListener('submit', function (event) {
+                    var textareaValue = document.getElementById('selectedItems').value.trim();
+                    if (textareaValue === '') {
+                        event.preventDefault();
+                        alert('Please select atleast one engine to run benchmark on.');
+                    }
+
+                    var testNameInput = document.getElementById('id_test_name');
+                    var regex = /^[a-zA-Z0-9-_]+$/;
+                    if (!regex.test(testNameInput.value)) {
+                        testNameInput.setCustomValidity('Invalid filename. Please enter a valid filename for the test.');
+                        event.preventDefault();
+                        this.reportValidity();
+                    } else {
+                        testNameInput.setCustomValidity('');
+                    }
+
+                    var selectElement = document.getElementById('id_test_regexes');
+                    if (selectElement.options.length === 0) {
+                        event.preventDefault();
+                        alert('Please enter atleast one regex to run the benchmark.');
+                    }
+
+                });
+
+
+            </script>
+
+            <div class="form-group">
+                <script>
+                    function loadPrevious() {
+                        var selectElement = document.getElementById("id_load_previous");
+                        var selectedValue = selectElement.value;
+                        if (selectedValue) {
+                            var url = new URL(window.location.href);
+                            url.searchParams.delete("prev_test");
+                            window.location.href = url.href + (url.search ? "&" : "?") + "prev_test=" + selectedValue;
+                        }
+                    }
+                </script>
+
+                <label for="id_divider"><strong>Load previous from previous runs</strong></label>
+                <div class="form-row align-items-center">
+                    <div class="col-md-11">
+                        <select class="form-control" name="load_previous" id="id_load_previous">
+                            <option value="" selected disabled>Select a previous run</option>
+                            {% for run in test_files %}
+                            {% if prev_test == run %}
+                            <option value="{{ run }}" selected>{{ run }}</option>
+                            {% else %}
+                            <option value="{{ run }}">{{ run }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-primary" onclick="loadPrevious()"> Load
+                        </button>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div class="row justify-content-md-center">
+                        <div class="col">
+                            <hr>
+                        </div>
+                        <div class="col-md-auto">
+                            OR
+                        </div>
+                        <div class="col">
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class=" form-group">
+                <script>
+                    function handleNameInputError() {
+                        var test_files = `{{ test_files|safe }}`;
+                        var testNameInput = document.getElementById('id_test_name');
+                        var testName = "test_" + testNameInput.value + ".json";
+                        if (test_files.includes(testName)) {
+                            testNameInput.classList.add('is-invalid');
+                        } else {
+                            testNameInput.classList.remove('is-invalid');
+                        }
+                    }
+                </script>
+                <label for="id_test_name"><strong>Name</strong></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">test_</div>
+                    </div>
+                    <input type="text" class="form-control" name="name" id="id_test_name"
+                        onchange="handleNameInputError()" placeholder="Enter name of Test" required
+                        value="{{ form.name.value|default_if_none:'' }}">
+                    <div class="invalid-feedback">
+                        This test already exists. Any changes will overwrite the previous test.
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="form-group">
+                <script>
+                    function addInputField() {
+                        var container = document.getElementById("last_regex");
+
+                        var div = document.createElement("div");
+                        div.className = "form-row form-group align-items-center";
+
+                        var inputdiv = document.createElement("div");
+                        inputdiv.className = "col-md-11";
+                        var input = document.createElement("input");
+                        input.type = "text";
+                        input.value = container.firstElementChild.firstElementChild.value;
+                        input.className = "form-control id_test_regexes_class";
+                        input.placeholder = "^(\\+\\d{1,2}\\s)?$";
+                        input.onchange = function () {
+                            editOrAddOption(this, 'id_test_regexes');
+                            this.oldvalue = this.value;
+                        };
+                        inputdiv.appendChild(input);
+
+                        var buttondiv = document.createElement("div");
+                        buttondiv.className = "col-sm-1";
+                        var button = document.createElement("button");
+                        button.type = "button";
+                        button.className = "btn btn-danger";
+                        button.innerHTML = "-";
+                        button.onclick = function () { div.remove(); editOrAddOption(this, 'id_test_regexes'); };
+                        buttondiv.appendChild(button);
+
+                        div.appendChild(inputdiv);
+                        div.appendChild(buttondiv);
+
+                        container.firstElementChild.firstElementChild.value = "";
+                        container.insertAdjacentElement("beforebegin", div);
+                    }
+                </script>
+                <script>
+                    function editOrAddOption(inputDialog, selectElement) {
+                        var selectElement = document.getElementById(selectElement);
+                        selectElement.innerHTML = "";
+
+                        var selectElements = document.getElementsByClassName("id_test_regexes_class");
+                        for (var i = 0; i < selectElements.length; i++) {
+                            if (selectElements[i].value !== "") {
+                                var option = document.createElement("option");
+                                option.value = selectElements[i].value;
+                                option.text = selectElements[i].value;
+                                option.selected = true;
+                                selectElement.add(option);
+                            }
+                        }
+                    }
+                </script>
+                <div class="form-row align-items-center">
+                    <label for="id_regex"><strong>Regexes</strong></label>
+                </div>
+                <select hidden multiple class="form-control" name="test_regexes" id="id_test_regexes"></select>
+
+                {% if form.selected_test_regexes %}
+                {% for regex in form.selected_test_regexes %}
+                <div class="form-row form-group align-items-center">
+                    <div class="col-md-11">
+                        <input type="text" class="form-control id_test_regexes_class" id="id_regex"
+                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;" required
+                            value="{{ regex }}">
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-danger"
+                            onclick="this.parentElement.parentElement.remove(); editOrAddOption(this, 'id_test_regexes')">
+                            -
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                <div id="last_regex" class="form-row form-group align-items-center">
+                    <div class="col-md-11">
+                        <input type="text" class="form-control id_test_regexes_class" id="id_regex"
+                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;"
+                            placeholder="^(\+\d{1,2}\s)?$" {% if not form.selected_test_regexes %} required {% endif %}>
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-primary" onclick="addInputField()"> + </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_text_file_name"><strong>Text File Name</strong></label>
+                <select required class="form-control" name="test_string_files" id="id_text_file_name">
+                    <option value="" selected disabled>Select text a file name</option>
+                    {% for file in available_text_files %}
+                    {% if file == form.selected_test_string_file %}
+                    <option value="{{ file }}" selected>{{ file }}</option>
+                    {% else %}
+                    <option value="{{ file }}">{{ file }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" {% if form.split_string_file_initial %} checked {% endif %}
+                        type="checkbox" name="split_string_file" id="id_split_strings">
+                    <label class="form-check-label" for="id_split_strings">Enable Split Strings</label>
+                    </label>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label for="id_description"><strong>Description</strong></label>
+                <textarea class="form-control" name="description" id="id_description" rows="3"
+                    placeholder="Enter description of Test">{{ form.description.value|default_if_none:"" }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="id_test_name"><strong>Run Times</strong></label>
+                <input type="number" class="form-control" name="run_times" id="id_run_times"
+                    placeholder="Enter number of times to run the benchmarks"
+                    value="{{ form.run_times.value|default_if_none:10 }}">
+
+            </div>
+
+            <div class=" form-group">
+                <script>
+                    function editOption(checkbox, selectElement) {
+                        var selectElement = document.getElementById(selectElement);
+                        var selectedItems = [];
+                        for (var i = 0; i < selectElement.options.length; i++) {
+                            if (selectElement.options[i].value === checkbox.value) {
+                                selectElement.options[i].selected = checkbox.checked;
+                            }
+                        }
+                        showSelectedItems();
+                    }
+                </script>
+                <script>
+                    function clearSelectedItems() {
+                        var selectElement = document.getElementById("id_engines");
+                        for (var i = 0; i < selectElement.options.length; i++) {
+                            selectElement.options[i].selected = false;
+                        }
+
+                        showSelectedItems();
+                    }
+
+                    function showSelectedItems() {
+                        var selectElement = document.getElementById("id_engines");
+                        var selectedItems = [];
+
+                        var inputMap = {};
+                        Array.from(document.getElementsByClassName("form-check-input")).forEach(inputField => {
+                            inputMap[inputField.value] = inputField;
+                        });
+
+                        for (var i = 0; i < selectElement.options.length; i++) {
+                            if (selectElement.options[i].selected) {
+                                selectedItems.push(selectElement.options[i].value)
+                            }
+
+                            if (selectElement.options[i].selected !== inputMap[selectElement.options[i].value].checked) {
+                                inputMap[selectElement.options[i].value].checked = selectElement.options[i].selected;
+                            }
+
+                        }
+                        var selectedItemsText = selectedItems.join(", ");
+                        let elem = document.getElementById("selectedItems");
+                        elem.value = selectedItemsText;
+                        elem.rows = 1;
+                        while (elem.clientHeight < elem.scrollHeight) {
+                            elem.rows += 1;
+                        }
+                    }
+                </script>
+
+                <label for="languages"><strong>Select Languages</strong></label>
+                <div class="form-row form-group align-items-center">
+                    <div class="col-md-11">
+                        <textarea type="text" class="form-control" id="selectedItems" placeholder="No engines selected"
+                            rows="2" disabled> </textarea>
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-danger" onclick="clearSelectedItems()"> X
+                        </button>
+                    </div>
+                </div>
+
+                <select hidden multiple class="form-control" name="engines" id="id_engines"
+                    onchange="showSelectedItems()">
+                    {% for engine in engine_list %}
+                    {% if form.selected_engines %}
+                    {% if engine in form.selected_engines %}
+                    <option value="{{ engine }}" selected>{{ engine }}</option>
+                    {% else %}
+                    <option value="{{ engine }}">{{ engine }}</option>
+                    {% endif %}
+                    {% else %}
+                    <option value="{{ engine }}" selected>{{ engine }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        {% for engine in engine_list %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ engine }}" checked
+                                onchange="editOption(this, 'id_engines')">
+                            <label class="form-check-label">{{ engine }}</label>
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        {% for engine in engine_list %}
+                        {% if forloop.counter|divisibleby:2 %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ engine }}" checked
+                                onchange="editOption(this, 'id_engines')">
+                            <label class="form-check-label">{{ engine }}</label>
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-secondary">Run Benchmark</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

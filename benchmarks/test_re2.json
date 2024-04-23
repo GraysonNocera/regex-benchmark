@@ -1,16 +1,16 @@
 [
-  {
-      "name": "Re2",
-      "description": "This is a testcase",
-      "test_regexes": [
-          "regex",
-          "doubleregex"
-      ],
-      "test_string_files": [
-          "testing.txt"
-      ],
-      "engines": [
-          "re2"
-      ]
-  }
+    {
+        "name": "Re2",
+        "description": "This is a testcase",
+        "test_regexes": [
+            "regex",
+            "doubleregex"
+        ],
+        "test_string_files": [
+            "testing.txt"
+        ],
+        "engines": [
+            "Re2"
+        ]
+    }
 ]

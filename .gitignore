@@ -5,3 +5,9 @@ __pycache__
 venv
 
 .DS_Store
+
+**/csv/**
+**temp
+**/runs/**
+mono_crash**
+**/**temp.txt

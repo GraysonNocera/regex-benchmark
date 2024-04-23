@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@3.11.0/css/mdb.min.css" /> -->
+</head>
+
+
+
+<body>
+    <header class="bg-secondary text-white text-center py-5">
+        <h1>Regex Benchmarking</h1>
+    </header>
+
+    <script>
+        function reloadPage() {
+            var state = document.getElementById('state').getAttribute('state');
+            if (state != 'RUN_STATUS.COMPLETED' && state != 'RUN_STATUS.FAILED' && state != 'RUN_STATUS.CANCELLED') {
+                window.location.reload();
+            } else {
+                clearInterval(myInterval);
+            }
+        }
+
+        const myInterval = setInterval(reloadPage, 2000); // Reload the page every 5 seconds
+
+        window.addEventListener('load', function () {
+            var progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(function (progressBar) {
+                progressBar.style.width = progressBar.getAttribute('aria-valuenow') + '%';
+            });
+        });
+    </script>
+
+    <div hidden id="state" state="{{ data.state }}"></div>
+
+    <div class="container mt-5 text-center">
+        {% if data.state == 'RUN_STATUS.NOT_STARTED' %}
+        <h2 class="mt-4">State: Not Started 🚫</h2>
+
+        {% elif data.state == 'RUN_STATUS.COMPILING' %}
+        <h2 class="mt-4">State: Compiling <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </h2>
+        <div class="container">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                    aria-valuenow="{{ data.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+
+        <div class="container mt-4">
+            <ul class="list-group">
+                {% for engine, compiled in data.compiling.items %}
+                {% if compiled %}
+                <li class="list-group-item list-group-item-success">{{ engine }}: Compiled ✅</li>
+                {% else %}
+                <li class="list-group-item">{{ engine }}: Compiling...</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% elif data.state == 'RUN_STATUS.RUNNING' %}
+        <h2 class="mt-4">State: Running <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </h2>
+
+        <div class="container">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                    aria-valuenow="{{ data.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+
+        <div class="container mt-4">
+            <ul class="list-group">
+                {% for engine, status in data.running.items %}
+                {% if status == 'ENGINE_STATUS.NOT_STARTED' %}
+                <li class="list-group-item">{{ engine }}: Not Started 🚫</li>
+                {% elif status == 'ENGINE_STATUS.RUNNING' %}
+                <li class="list-group-item list-group-item-primary">{{ engine }}: Running...</li>
+                <div class="container">
+                    <div class="progress">
+                        <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
+                            role="progressbar" aria-valuenow="{{ data.running.progress }}" aria-valuemin="0"
+                            aria-valuemax="100"></div>
+                    </div>
+                </div>
+                {% elif status == 'ENGINE_STATUS.COMPLETED' %}
+                <li class="list-group-item list-group-item-success">{{ engine }}: Completed ✅</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% elif data.state == 'RUN_STATUS.COMPLETED' %}
+        <h2 class="mt-4">State: Completed ✅</h2>
+
+        <ul class="list-group" id="accordion">
+            {% for engine, results in data.results.items %}
+            <li class="list-group-item list-group-item-success">
+                <a class="btn" data-toggle="collapse" data-target="#collapse_{{ forloop.counter }}" aria-expanded="true"
+                    aria-controls="collapse_{{ forloop.counter }}">
+                    {{ engine }}: Completed ✅
+            </li>
+            <li class="list-group-item">
+                <div id="collapse_{{ forloop.counter }}" class="collapse show" aria-labelledby="headingOne"
+                    data-parent="#accordion">
+                    <div class="card-body">
+                        {% for engine2, plot_url in data.plots.items %}
+                        {% if engine == engine2 %}
+                        <img src="data:image/png;base64, {{ plot_url }}">
+                        {% endif %}
+                        {% endfor %}
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Test File Name</th>
+                                    <th colspan="{{ data.regexes_count }}" scope="col">Timing regexes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+                                    {% for value in result %}
+                                    <td>{{ value }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+
+
+        </ul>
+
+        {% elif data.state == 'RUN_STATUS.FAILED' %}
+        <h2 class="mt-4">State: Failed ❌</h2>
+        <div class="container">
+            <h3>Error</h3>
+            {% for error in data.error %}
+            <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        {% elif data.state == 'RUN_STATUS.CANCELLED' %}
+        <h2 class="mt-4">State: Cancelled ❌</h2>
+
+        {% else %}
+        <h2 class="mt-4">State: Unknown</h2>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

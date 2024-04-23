@@ -5,10 +5,11 @@ should the CLI provide us with BLOCK, STREAM, or VECTOR mode?
 Ideally, we would run the native C engine, but python binding is quicker to get up and running.
 """
 
-import hyperscan as hs
-from typing import Any, Optional
-import timeit
 import sys
+import timeit
+from typing import Any, Optional
+
+import hyperscan as hs
 
 # A truthy return value signifies to stop matching
 matches = 0
