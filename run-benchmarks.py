@@ -119,7 +119,7 @@ def build_engines():
     list_of_test_languages = set.union(*[set(data["engines"]) for data in TEST_DATA])
     for language, build_cmd in BUILDS.items():
         if language in list_of_test_languages:
-            subprocess.run(build_cmd, shell=True, stdout=subprocess.PIPE)
+            subprocess.run(build_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print(f"{language} built.", flush=True)
 
 def unpack_regexes(regex_files):

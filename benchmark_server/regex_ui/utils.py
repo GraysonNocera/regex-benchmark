@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 
 from .constants import BUILDS, ENGINE_STATUS, PROJECT_ROOT, RUN_STATUS
 
@@ -99,3 +100,23 @@ def parse_output(test_name):
 
     return data
     
+def get_already_running_benchmarks():
+    # use ps aux to get the list of running benchmarks
+    command = "ps aux | grep run-benchmarks.py"
+    output = subprocess.check_output(command, shell=True).decode("utf-8")
+    running_benchmarks = []
+    for line in output.splitlines():
+        if "python3" in line and "run-benchmarks.py" in line:
+            running_benchmarks.append(line.split()[-1].split(".json")[0])
+
+    return running_benchmarks
+
+def get_previous_runs():
+    runs = []
+    running_benchmarks = get_already_running_benchmarks()
+    for file in os.listdir(os.path.join(PROJECT_ROOT, 'runs')):
+        if file.endswith('_out.txt'):
+            test_name = file.replace('_out.txt', '')
+            if test_name not in running_benchmarks:
+                runs.append(test_name)
+    return runs

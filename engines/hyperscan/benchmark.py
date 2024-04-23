@@ -5,10 +5,11 @@ should the CLI provide us with BLOCK, STREAM, or VECTOR mode?
 Ideally, we would run the native C engine, but python binding is quicker to get up and running.
 """
 
-import hyperscan as hs
-from typing import Any, Optional
-import timeit
 import sys
+import timeit
+from typing import Any, Optional
+
+import hyperscan as hs
 
 if len(sys.argv) < 3:
     print('Usage: python benchmark.py <input_filename> regex1 regex2 ..')
@@ -31,11 +32,11 @@ def measure(data, pattern):
     )
     expressions, ids = zip(*patterns)
     time_to_compile = timeit.timeit(stmt=lambda: db.compile(expressions=expressions, ids=ids, elements=len(patterns)), number=1)
-    print(f"time to compile: {time_to_compile}", file=sys.stderr)
+    # print(f"time to compile: {time_to_compile}", file=sys.stderr)
 
     # BLOCK MODE
     time_to_search = timeit.timeit(stmt=lambda: db.scan(data.encode(), match_event_handler=on_match), number=1)
-    print(f"time to search: {time_to_search}", file=sys.stderr)
+    # print(f"time to search: {time_to_search}", file=sys.stderr)
 
     global matches
     print(f"{time_to_search * 1e3} - {matches}")

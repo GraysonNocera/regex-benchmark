@@ -14,8 +14,52 @@
     </header>
 
     <div class="container mt-5">
-        <p class="text-center">This project aims to give a user friendly way to benchmark your regex and visualize the
-            output.</p>
+        <p class="text-center">
+            This project aims to give a user friendly way to benchmark your regex and visualize the output.
+        </p>
+    </div>
+
+    <div class="container mt-5">
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <h3 class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+                            aria-controls="collapseOne">
+                            Previous Benchmarks Results
+                        </h3>
+                    </h5>
+                </div>
+
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        {% for benchmark in running_benchmarks %}
+                        <li>
+                            <a href="{% url 'runs' benchmark %}">
+                                {{ benchmark }}
+                                <div class="spinner-grow spinner-grow-sm m-0 text-success" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                        {% for run in prev_runs %}
+                        <li>
+                            <a href="{% url 'runs' run %}">
+                                {{ run }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="container mt-5">
+
+
         <form id="testForm" action="" method="post">
             {% csrf_token %}
 
@@ -85,7 +129,8 @@
                         </select>
                     </div>
                     <div class="col-sm-1">
-                        <button type="button" class="btn btn-primary" onclick="loadPrevious()"> Load </button>
+                        <button type="button" class="btn btn-primary" onclick="loadPrevious()"> Load
+                        </button>
                     </div>
                 </div>
 

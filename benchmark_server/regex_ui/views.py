@@ -8,7 +8,8 @@ from django.shortcuts import redirect, render
 
 from .constants import AVAILABLE_TEXT_FILES, ENGINES, PROJECT_ROOT
 from .forms import BenchmarkForm
-from .utils import create_dir_if_not_exists, parse_output
+from .utils import (create_dir_if_not_exists, get_already_running_benchmarks,
+                    get_previous_runs, parse_output)
 
 
 def landing_page(request):
@@ -46,7 +47,6 @@ def landing_page(request):
                 form.selected_engines = data[0]['engines']
                 form.selected_test_string_file = data[0]['test_string_files'][0]
                 form.selected_test_regexes = data[0]['test_regexes']
-                print(form.selected_test_regexes)
 
     test_files = os.listdir(os.path.join(PROJECT_ROOT, 'benchmarks')) if os.path.exists(os.path.join(PROJECT_ROOT, 'benchmarks')) else []
     data = {
@@ -54,7 +54,9 @@ def landing_page(request):
         "available_text_files": AVAILABLE_TEXT_FILES, 
         "test_files": test_files,
         "form": form,
-        "prev_test": request.GET.get('prev_test')
+        "prev_test": request.GET.get('prev_test'),
+        "running_benchmarks": get_already_running_benchmarks(),
+        "prev_runs": get_previous_runs()
     }
     # print(data)
     return render(request, 'regex_ui/landing.html', data)
