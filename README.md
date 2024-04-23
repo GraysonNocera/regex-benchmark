@@ -4,7 +4,7 @@
 ## Run
 ```
 docker build -t regex_benchmark .
-docker run -it -v $(pwd):/var/regex --name "regex_benchmark_server"  -p 8000:8000 regex_benchmark
+docker rm -f regex_benchmark_server || true && docker run -it -v $(pwd):/var/regex --name "regex_benchmark_server" -p 8000:8000 regex_benchmark
 ```
 
 ## Open the UI

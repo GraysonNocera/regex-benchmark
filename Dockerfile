@@ -161,7 +161,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/regex
 
-CMD ["python3", "/var/regex/run-benchmarks.py", "test_full.json"]
+# CMD ["python3", "/var/regex/run-benchmarks.py", "test_basic.json"]
 
 CMD ["python3", "benchmark_server/manage.py", "runserver", "0.0.0.0:8000"]
 EXPOSE 8000

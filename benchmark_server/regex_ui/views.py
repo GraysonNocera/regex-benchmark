@@ -47,6 +47,7 @@ def landing_page(request):
                 form.selected_engines = data[0]['engines']
                 form.selected_test_string_file = data[0]['test_string_files'][0]
                 form.selected_test_regexes = data[0]['test_regexes']
+                form.split_string_file_initial = data[0].get('split_string_file', False)
 
     test_files = os.listdir(os.path.join(PROJECT_ROOT, 'benchmarks')) if os.path.exists(os.path.join(PROJECT_ROOT, 'benchmarks')) else []
     data = {

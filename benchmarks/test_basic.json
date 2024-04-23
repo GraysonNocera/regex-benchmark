@@ -17,6 +17,6 @@
             "Python 2",
             "Python 3"
         ],
-        "split_string_file": false
+        "split_string_file": true
     }
 ]

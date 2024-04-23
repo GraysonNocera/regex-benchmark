@@ -10,3 +10,4 @@ venv
 **temp
 **/runs/**
 mono_crash**
+**/**temp.txt
