@@ -17,6 +17,7 @@ class BenchmarkForm(forms.Form):
     test_string_files = forms.MultipleChoiceField(label='Text File Name', required=True, choices=[(file, file) for file in AVAILABLE_TEXT_FILES])
     engines = forms.MultipleChoiceField(label='Engines', required=True, choices=[(engine, engine) for engine in ENGINES])
     run_times = forms.IntegerField(label='Run Times', required=True, initial=10)
+    split_string_file = forms.BooleanField(label='Split String File', required=False)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -32,6 +33,7 @@ class BenchmarkForm(forms.Form):
             'test_string_files': self.cleaned_data['test_string_files'],
             'run_times': self.cleaned_data['run_times'],
             'engines': self.cleaned_data['engines'],
+            'split_string_file': self.cleaned_data['split_string_file']
         }
         return json.dumps([data], indent=4)
 

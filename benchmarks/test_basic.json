@@ -2,17 +2,21 @@
     {
         "name": "test_basic",
         "test_regexes": [
-            "^parth$"
+            "^parth$",
+            "^\\as\\as\\as[1-2]$",
+            "12345",
+            "[a]+."
         ],
         "description": "This is a basic test",
         "test_string_files": [
-            "input-text.txt"
+            "email_regex_text.txt"
         ],
         "run_times": 20,
         "engines": [
             "C++ STL",
             "Python 2",
             "Python 3"
-        ]
+        ],
+        "split_string_file": false
     }
 ]
