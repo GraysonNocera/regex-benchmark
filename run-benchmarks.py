@@ -4,6 +4,9 @@ import json
 import os
 import csv
 import subprocess
+from haystack import Haystack
+from pattern import Pattern
+from typing import List
 
 import numpy as np
 
@@ -96,11 +99,12 @@ class Benchmark:
 
 
 class CSVWriter:
-    def __init__(self, path_to_csv: str, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL):
+    def __init__(self, csv_file_name: str, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL):
+        path_to_csv = os.path.join("csv", csv_file_name)
         self.f = open(path_to_csv, "w")
         self.writer = csv.writer(self.f, delimiter=delimiter, quotechar=quotechar, quoting=quoting)
 
-    def write_one_row(self, data, label: str = ""):
+    def write_one_row(self, data: List[float], label: str = ""):
         row = [label] + data if label else data
         self.writer.writerow(row)
 
@@ -141,41 +145,30 @@ for test_number, data in enumerate(TEST_DATA):
     for engine in data["engines"]:
         test_name_no_json = args.testfile.strip(".json")
         csv_file_name = f"{engine}_{test_name_no_json}[{test_number}].csv"
-        path_to_csv = os.path.join("csv", csv_file_name)
-        csv_outputs.append(path_to_csv)
-        csv_writer = CSVWriter(path_to_csv)
+        csv_outputs.append(csv_file_name)
+        csv_writer = CSVWriter(csv_file_name)
         csv_writer.write_one_row(label=test_name_no_json, data=list(range(1, len(data["test_regexes"]) + 1)))
 
         command = COMMANDS[engine]
         print(f"{engine} running.", end=" ", flush=True)
 
-        for input_path in data["test_string_files"]:
-            input_path = os.path.join(os.path.dirname(__file__), "haystacks", input_path)
-            run_times = data.get("run_times", RUN_TIMES)
-            patterns = data["test_regexes"]
-
-
-            if "split_string_file" in data and data["split_string_file"]:
-                lines = []
-                with open(input_path, "r") as f:
-                    lines = [x.strip() for x in f.readlines()]
-                print(f"running {input_path}, {patterns}, {run_times * len(lines)}", flush=True)
-                for line in lines:
-                    temp_file = os.path.join(os.path.dirname(__file__), "haystacks", f"{data['name']}_temp.txt")
-                    with open(temp_file, "w") as f:
-                        f.write(line)
-                    benchmark = Benchmark(temp_file, patterns, run_times)
-                    average_times = benchmark.run(command)
-                    csv_writer.write_one_row(label=line, data=average_times)
-                    
-                os.remove(temp_file)
-            else:
-                print(f"running {input_path}, {patterns}, {run_times}", flush=True)
-                benchmark = Benchmark(input_path, patterns, run_times)
-                average_times = benchmark.run(command)
-                csv_writer.write_one_row(label=input_path, data=average_times)
-
-            print(f"\n{engine} ran.", flush=True)
+        p = Pattern(data["test_regexes"], data.get("regexes_in_file", False))
+        h = Haystack(data["test_string_files"], data.get("split_string_file", False))
+        line = h.get_one_haystack()
+        while line:
+            row = []
+            pattern = p.get_one_pattern()
+            while pattern:
+                benchmark = Benchmark(line, pattern, RUN_TIMES)
+                average_time = benchmark.run(command)
+                row += [average_time]
+                pattern = p.get_one_pattern()
+            p.reset()
+            # print(h.line_index, h.path_index)
+            csv_writer.write_one_row(data=row, label=str(h.line_index))
+            line = h.get_one_haystack()
+        h.reset()
+        print(f"\n{engine} ran.", flush=True)
 
     print("------------------------", flush=True)
     print(f"Benchmark results written to files {csv_outputs}", flush=True)
