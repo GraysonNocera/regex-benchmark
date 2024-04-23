@@ -102,7 +102,10 @@ def parse_output(test_name):
                     if len(result[-1][0]) > 20:
                         result[-1][0] = result[-1][0][:20] + "..."
                     
-                    result[-1][1:] = ["%.03f ms" % float(x) for x in result[-1][-no_of_regexes:]]
+                    try:
+                        result[-1][1:] = ["%.03f ms" % float(x) for x in result[-1][-no_of_regexes:]]
+                    except ValueError as e:
+                        raise ValueError(f"Error in {csv_file_path} at line {line}: {e}")
                     
             
             data['results'][engine] = result

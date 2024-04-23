@@ -371,10 +371,14 @@
                 <select hidden multiple class="form-control" name="engines" id="id_engines"
                     onchange="showSelectedItems()">
                     {% for engine in engine_list %}
+                    {% if form.selected_engines %}
                     {% if engine in form.selected_engines %}
                     <option value="{{ engine }}" selected>{{ engine }}</option>
                     {% else %}
                     <option value="{{ engine }}">{{ engine }}</option>
+                    {% endif %}
+                    {% else %}
+                    <option value="{{ engine }}" selected>{{ engine }}</option>
                     {% endif %}
                     {% endfor %}
                 </select>
