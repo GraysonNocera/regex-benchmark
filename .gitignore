@@ -9,5 +9,7 @@ venv
 **/csv/**
 **temp
 **/runs/**
+!runs/.gitkeep
+
 mono_crash**
 **/**temp.txt
