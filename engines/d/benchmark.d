@@ -7,20 +7,28 @@ import core.stdc.stdlib;
 import std.typecons : Flag, Yes, No;
 import std.conv;
 
+int EXIT_FAILURE = 1;
+
 void measure(string data, string pattern) {
     int count = 0;
 
-    auto r = regex(pattern);
+    try {
+        auto r = regex(pattern);
 
-    auto sw = StopWatch(AutoStart.yes);
-    foreach (m; data.matchAll(r)) {
-        count++;
+        auto sw = StopWatch(AutoStart.yes);
+        foreach (m; data.matchAll(r)) {
+            count++;
+        }
+        sw.stop();
+
+        double end = sw.peek().total!"nsecs" / 1e6;
+
+        printf("%f - %d\n", end, count);
     }
-    sw.stop();
-
-    double end = sw.peek().total!"nsecs" / 1e6;
-
-    printf("%f - %d\n", end, count);
+    catch (Exception e) {
+        stderr.writeln("compilation failed: %s", e.msg);
+        exit(EXIT_FAILURE);
+    }
 }
 
 void main(string [] args) {
