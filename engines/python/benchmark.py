@@ -3,19 +3,26 @@ import re
 import json
 from timeit import default_timer as timer
 
+EXIT_FAILURE = 1
+
 if len(sys.argv) != 4:
     print('Usage: python benchmark.py <input_filename> regex num_iterations')
-    sys.exit(1)
+    sys.exit(EXIT_FAILURE)
 
 def measure(data, pattern):
 
-    regex = re.compile(pattern)
+    try:
+        regex = re.compile(pattern)
 
-    start_time = timer()
-    matches = re.findall(regex, data)
-    elapsed_time = timer() - start_time
+        start_time = timer()
+        matches = re.findall(regex, data)
+        elapsed_time = timer() - start_time
 
-    print(str(elapsed_time * 1e3) + ' - ' + str(len(matches)))
+        print(str(elapsed_time * 1e3) + ' - ' + str(len(matches)))
+    except Exception as e:
+        print(f"compilation error: {e}", sys.stderr)
+        sys.exit(EXIT_FAILURE)
+
 
 with open(sys.argv[1]) as file:
     data = file.read()

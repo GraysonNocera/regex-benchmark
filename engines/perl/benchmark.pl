@@ -1,16 +1,18 @@
 use Time::HiRes qw(gettimeofday);
+# use Syntax::Keyword::Try;
 
 sub measure {
-    my ($data, $pattern) = @_;
-    my $regex = qr/$pattern/;
+  my ($data, $pattern) = @_;
+  my $regex = eval { qr/$pattern/ };
+  if ($@) {
+    die "invalid regex: $@" if $@;
+  }
 
-    my $start = Time::HiRes::gettimeofday();
+  my $start = Time::HiRes::gettimeofday();
+  my $count = () = $data =~ /$regex/g;
+  my $elapsed = (Time::HiRes::gettimeofday() - $start) * 1e3;
 
-    my $count = () = $data =~ /$regex/g;
-
-    my $elapsed = (Time::HiRes::gettimeofday() - $start) * 1e3;
-
-    printf("%f - %d\n", $elapsed, $count);
+  printf("%f - %d\n", $elapsed, $count);
 }
 
 if (@ARGV != 3) {

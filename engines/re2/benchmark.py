@@ -8,26 +8,28 @@ import timeit
 
 import re2
 
+EXIT_FAILURE = 1
+
 if len(sys.argv) != 4:
     print('Usage: python benchmark.py <input_filename> regex num_iterations')
-    sys.exit(1)
+    sys.exit(EXIT_FAILURE)
 
 def measure(data, pattern):
 
-  time_to_compile = timeit.timeit(stmt=lambda: re2.compile(pattern), number=1)
-  # print(f"time to compile: {time_to_compile}", file=sys.stderr)
+  try:
+    re2.purge()
+    start = timeit.default_timer()
+    pattern = re2.compile(pattern)
+    time_to_compile = timeit.default_timer() - start
 
-  pattern = re2.compile(pattern)
+    start = timeit.default_timer()
+    matches = pattern.findall(data)
+    time_to_search = timeit.default_timer() - start
 
-  re2.purge()
-  pattern = re2.compile(pattern)
-
-  start = timeit.default_timer()
-  matches = pattern.findall(data)
-  time_to_search = timeit.default_timer() - start
-  # print(f"time to search: {time_to_search}", file=sys.stderr)
-
-  print(f"{time_to_search * 1e3} - {len(matches)}")
+    print(f"{time_to_search * 1e3} - {len(matches)}")
+  except Exception as e:
+    print(f"compilation error: {e}", file=sys.stderr)
+    sys.exit(EXIT_FAILURE)
 
 with open(sys.argv[1]) as file:
     data = file.read()

@@ -2,7 +2,9 @@ use std::time::Instant;
 
 use regex::bytes::RegexBuilder;
 
-fn measure(data: &str, pattern: &str) {
+const EXIT_FAILURE: i32 = 1;
+
+fn measure(data: &str, pattern: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let regex = RegexBuilder::new(pattern).build().unwrap();
 
     let start = Instant::now();
@@ -10,6 +12,7 @@ fn measure(data: &str, pattern: &str) {
     let elapsed = Instant::now().duration_since(start);
 
     println!("{} - {}", elapsed.as_secs_f64() * 1e3, count);
+    Ok(())
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -28,7 +31,13 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let num_iterations = args[3].parse::<i32>().unwrap();
 
     for _i in 0..num_iterations {
-        measure(&data, &pattern);
+        let _result = match measure(&data, &pattern) {
+            Ok(()) => {}
+            Err(error) => {
+                eprintln!("compilation error: {}", error);
+                std::process::exit(EXIT_FAILURE);
+            }
+        };
     }
 
     Ok(())
