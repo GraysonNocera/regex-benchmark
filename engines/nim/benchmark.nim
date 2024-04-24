@@ -9,13 +9,17 @@ if paramCount() != 3:
   quit(QuitFailure)
 
 proc measure(data:string, pattern:string) =
-  let r_pattern = re(pattern)
+  try:
+    let r_pattern = re(pattern)
 
-  let time = cpuTime()
-  let matches: seq[string] = data.findAll(r_pattern)
-  let count = len(matches)
-  let elapsed_time = cpuTime() - time 
-  echo &"{elapsed_time * 1e3} - {count}"
+    let time = cpuTime()
+    let matches: seq[string] = data.findAll(r_pattern)
+    let count = len(matches)
+    let elapsed_time = cpuTime() - time 
+    echo &"{elapsed_time * 1e3} - {count}"
+  except CatchableError as e:
+    stderr.writeLine("compilation failed: ", e.msg)
+    quit(QuitFailure)
 
 let data = readFile(paramStr(1))
 let pattern = paramStr(2)

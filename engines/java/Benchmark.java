@@ -5,10 +5,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Benchmark {
+    public static int EXIT_FAILURE = 1;
+
     public static void main(String... args) throws IOException {
         if (args.length != 3) {
             System.out.println("Usage: java Benchmark <filename> regex numIterations");
-            System.exit(1);
+            System.exit(EXIT_FAILURE);
         }
 
         final String data = Files.readString(Paths.get(args[0]));
@@ -22,17 +24,22 @@ public final class Benchmark {
 
     
     private static void measure(String data, String pattern) {
-        final Pattern compiledPattern = Pattern.compile(pattern);
 
-        long startTime = System.nanoTime();
-        final Matcher matcher = compiledPattern.matcher(data);
-        int count = 0;
-        while (matcher.find()) {
-            ++count;
+        try {
+            final Pattern compiledPattern = Pattern.compile(pattern);
+            long startTime = System.nanoTime();
+            final Matcher matcher = compiledPattern.matcher(data);
+            int count = 0;
+            while (matcher.find()) {
+                ++count;
+            }
+
+            long elapsed = System.nanoTime() - startTime;
+
+            System.out.println(elapsed / 1e6 + " - " + count);
+        } catch (Exception e) {
+            System.err.println("compilation error: " + e);
+            System.exit(EXIT_FAILURE);
         }
-
-        long elapsed = System.nanoTime() - startTime;
-
-        System.out.println(elapsed / 1e6 + " - " + count);
     }
 }
