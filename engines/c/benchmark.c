@@ -79,9 +79,9 @@ int measure(char *data, char *pattern)
   clock_gettime(CLOCK_MONOTONIC, &start);
 
   // Reference this page (https://www.pcre.org/current/doc/html/pcre2demo.html) toward the 
-  // bottom, there is an example of matching multiple times in the same string
-  // This version is prone to errors if something like an empty match occurs. Ideally,
-  // we would fix this, but for now it should work
+  // bottom, there is an example of matching multiple times in the same string correctly.
+  // The version in this file is prone to errors if something like an empty match occurs. Ideally,
+  // we would fix this, but for now it should work.
   while (pcre2_match(re, (PCRE2_SPTR8)data, string_length, offset, 0, match_data, NULL) > 0)
   {
     count++;
