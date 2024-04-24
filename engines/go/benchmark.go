@@ -10,11 +10,14 @@ import (
     "strconv"
 )
 
+var EXIT_FAILURE int = 1
+
 func measure(data string, pattern string) {
 
     r, err := regexp.Compile(pattern)
     if err != nil {
         log.Fatal(err)
+        os.Exit(EXIT_FAILURE)
     }
 
     start := time.Now()
