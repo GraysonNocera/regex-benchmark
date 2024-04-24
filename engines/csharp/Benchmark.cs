@@ -3,8 +3,12 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 
+
+
 class Benchmark
 {
+    public const Int32 EXIT_FAILURE = 1;
+
     static void Main(string[] args)
     {
         if (args.Length != 3)
@@ -27,14 +31,18 @@ class Benchmark
 
     static void Measure(string data, string pattern)
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
+        try {
+            Regex compiledPattern = new Regex(pattern);
 
-        Regex compiledPattern = new Regex(pattern);
-        MatchCollection matches = compiledPattern.Matches(data);
-        int count = matches.Count;
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            MatchCollection matches = compiledPattern.Matches(data);
+            stopwatch.Stop();
 
-        stopwatch.Stop();
-
-        Console.WriteLine(stopwatch.Elapsed.TotalMilliseconds.ToString("G", System.Globalization.CultureInfo.InvariantCulture) + " - " + count);
+            int count = matches.Count;
+            Console.WriteLine(stopwatch.Elapsed.TotalMilliseconds.ToString("G", System.Globalization.CultureInfo.InvariantCulture) + " - " + count);
+        } catch (Exception e) {
+            Console.Error.WriteLine("compilation failed: " + e.Message);
+            System.Environment.Exit(EXIT_FAILURE);
+        }
     }
 }
