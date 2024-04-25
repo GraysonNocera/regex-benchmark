@@ -19,7 +19,7 @@ class Pattern:
     def validate_paths(self, paths):
         is_valid = [os.path.exists(path) for path in paths]
         if not all(is_valid):
-            raise Exception("Invalid pattern paths")
+            raise Exception(f"Invalid pattern paths: {paths}")
         
     def reset(self):
         self.index = 0
