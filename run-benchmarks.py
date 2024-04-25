@@ -16,10 +16,7 @@ import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("testfile", default="test.json", help="Path to the test file", nargs='?')
-parser.add_argument("run_times", type=int, default=10, help="Number of times to run the benchmarks", nargs='?')
 args = parser.parse_args()
-
-RUN_TIMES = args.run_times
 
 BUILDS = {
     "C PCRE2": "gcc -O3 -DNDEBUG engines/c/benchmark.c -I/usr/local/include/ -lpcre2-8 -o engines/c/bin/benchmark",
@@ -87,7 +84,8 @@ class Benchmark:
             stdout=subprocess.PIPE,
         )
         if subproc.returncode != 0: # some error in the runner program for this regex
-            print(f"command failed for pattern {self.pattern}", file=sys.stderr)
+            # we shouldn't print here because the runner programs print the actual error, which is more useful
+            # print(f"command failed for pattern {self.pattern}", file=sys.stderr) 
             return 0
 
         stdout = subproc.stdout
@@ -149,6 +147,7 @@ for test_number, data in enumerate(TEST_DATA):
     for engine in data["engines"]:
         print(f"Running engine {engine}\n", file=sys.stderr)
 
+        run_times = data.get("run_times", 10)
         p = Pattern(data["test_regexes"], data.get("regexes_in_file", False))
         h = Haystack(data["test_string_files"], data.get("split_string_file", False))
 
@@ -165,7 +164,7 @@ for test_number, data in enumerate(TEST_DATA):
             row = []
             pattern = p.get_one_pattern()
             while pattern:
-                benchmark = Benchmark(line, pattern, RUN_TIMES)
+                benchmark = Benchmark(line, pattern, run_times)
                 average_time = benchmark.run(command)
                 row += [average_time]
                 pattern = p.get_one_pattern()
