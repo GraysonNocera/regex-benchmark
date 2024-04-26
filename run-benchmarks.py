@@ -154,7 +154,7 @@ for test_number, data in enumerate(TEST_DATA):
     run_times = data.get("run_times", 10)
 
     for engine in data["engines"]:
-        print(f"Running engine {engine}\n", file=sys.stderr, flush=True)
+        # print(f"Running engine {engine}\n", file=sys.stderr, flush=True)
 
         p = Pattern(data["test_regexes"], data.get("regexes_in_file", False))
         h = Haystack(data["test_string_files"], data.get("split_string_file", False))
@@ -183,14 +183,14 @@ for test_number, data in enumerate(TEST_DATA):
                     if average_time == -1:
                         bad_patterns.append(pattern)
                 row += [average_time]
-                print(f"Ran {pattern} against {line} in {time.time() - start}", file=sys.stderr, flush=True)
+                # print(f"Ran {pattern} against {line} in {time.time() - start}", file=sys.stderr, flush=True)
                 pattern = p.get_one_pattern()
             p.reset()
             csv_writer.write_one_row(data=row, label=str(h.line_index))
             line = h.get_one_haystack()
         h.reset()
         print(f"\n{engine} ran.", flush=True)
-        print(f"Ran engine {engine}\n", file=sys.stderr, flush=True)
+        # print(f"Ran engine {engine}\n", file=sys.stderr, flush=True)
 
     print("------------------------", flush=True)
     print(f"Benchmark results written to files {csv_outputs}", flush=True)
