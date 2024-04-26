@@ -123,8 +123,10 @@ def parse_output(test_name):
     return data
 
 def remove_engine_failures(error):
+    error = ''.join(error)
     for engine in ENGINES:
-        error = re.sub(rf'(?s)-----{engine} start.+-----{engine} end', '', error)
+        engine = re2.escape(engine)
+        error = re2.sub(rf'(?s)-----{engine} start.+-----{engine} end', '', error)
 
     return error
     
