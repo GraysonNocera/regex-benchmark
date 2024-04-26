@@ -16,7 +16,7 @@ ENGINES = [
     "Dart Native",
     "Go",
     "Grep",
-    # "Hyperscan",
+    "Hyperscan",
     "Java",
     "Kotlin",
     "Nim",
