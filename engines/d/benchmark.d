@@ -4,40 +4,44 @@ import std.regex;
 import std.datetime;
 import std.datetime.stopwatch : StopWatch, AutoStart;
 import core.stdc.stdlib;
+import std.typecons : Flag, Yes, No;
+import std.conv;
+
+int EXIT_FAILURE = 1;
 
 void measure(string data, string pattern) {
     int count = 0;
 
-    auto sw = StopWatch(AutoStart.yes);
+    try {
+        auto r = regex(pattern);
 
-    foreach (m; data.matchAll(regex(pattern))) {
-        count++;
+        auto sw = StopWatch(AutoStart.yes);
+        foreach (m; data.matchAll(r)) {
+            count++;
+        }
+        sw.stop();
+
+        double end = sw.peek().total!"nsecs" / 1e6;
+
+        printf("%f - %d\n", end, count);
     }
-
-    sw.stop();
-    double end = sw.peek().total!"nsecs" / 1e6;
-
-    printf("%f - %d\n", end, count);
+    catch (Exception e) {
+        stderr.writeln("compilation failed: %s", e.msg);
+        exit(EXIT_FAILURE);
+    }
 }
 
 void main(string [] args) {
-    if(args.length <= 2) {
-        writeln("Usage: benchmark <filename> regex1 regex2 ...");
+    if(args.length != 4) {
+        writeln("Usage: benchmark <filename> regex numIterations");
         exit(1);
     }
 
     string data = readText(args[1]);
+    string pattern = args[2];
+    int numIterations = std.conv.to!int(args[3]);
 
-    for(int i = 2; i < args.length; i++) {
-        measure(data, args[i]);
+    for(int i = 0; i < numIterations; i++) {
+        measure(data, pattern);
     }
-
-    // // Email
-    // measure(data, r"[\w\.+-]+@[\w\\.-]+\.[\w\.-]+");
-
-    // // URI
-    // measure(data, r"[\w]+://[^/\s?#]+[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?");
-
-    // // IP
-    // measure(data, r"(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])");
 }

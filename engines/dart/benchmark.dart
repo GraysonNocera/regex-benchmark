@@ -1,37 +1,37 @@
 import 'dart:io';
 
+const EXIT_FAILURE = 1;
+
 main(List<String> arguments) {
-  if (arguments.length <= 1) {
-    print('Usage: dart bencharmark.dart <filename> regex1 regex2 ... regexN');
+  if (arguments.length != 3) {
+    print('Usage: dart bencharmark.dart <filename> regex numIterations');
     exit(1);
   }
 
+  var numIterations = int.parse(arguments[2]);
+  var pattern = arguments[1];
   new File(arguments[0])
     .readAsString()
     .then((String data) {
-      
-      for (var i = 1; i < arguments.length; i++) {
-        measure(data, arguments[i]);
+      for (var i = 0; i < numIterations; i++) {
+        measure(data, pattern);
       }
-      // // Email
-      // measure(data, r"[\w.+-]+@[\w.-]+\.[\w.-]+");
-
-      // // URI
-      // measure(data, r"[\w]+:\/\/[^\/\s?#]+[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?");
-
-      // // IP
-      // measure(data, r"(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])");
     });
 }
 
 measure(data, pattern){
-  var stopwatch = new Stopwatch()..start();
+  try {
+    RegExp exp = new RegExp(pattern);
 
-  RegExp exp = new RegExp(pattern);
-  Iterable<Match> matches = exp.allMatches(data);
-  var count = matches.length;
+    var stopwatch = new Stopwatch()..start();
+    Iterable<Match> matches = exp.allMatches(data);
+    var count = matches.length;
 
-  stopwatch.stop();
+    stopwatch.stop();
 
-  print('${stopwatch.elapsedMicroseconds / 1e3} - ${count}');
+    print('${stopwatch.elapsedMicroseconds / 1e3} - ${count}');
+  } on Exception catch (e) {
+    stderr.write('compilation failed: $e\n');
+    exit(EXIT_FAILURE);
+  }
 }

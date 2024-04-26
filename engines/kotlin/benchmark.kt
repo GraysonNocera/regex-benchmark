@@ -4,37 +4,38 @@ import kotlin.text.Regex
 import kotlin.system.exitProcess
 import kotlin.system.measureNanoTime
 
+val EXIT_FAILURE = 1
+
 fun main(args: Array<String>) {
-    if (args.count() <= 1) {
-        println("Usage: kotlin benchmark.jar <filename> regex1 regex2 ... regexN");
-        exitProcess(1);
+    if (args.count() != 3) {
+        println("Usage: kotlin benchmark.jar <filename> regex numIterations");
+        exitProcess(EXIT_FAILURE);
     }
 
     val inputStream: InputStream = File(args[0]).inputStream()
     val data = inputStream.bufferedReader().use { it.readText() }
+    val pattern = args[1];
+    val numIterations = args[2].toInt();
 
-
-    for (i in 1 until args.count()) {
-        match(data, args[i])
+    for (i in 0 until numIterations) {
+        match(data, pattern)
     }
-    // Email
-    // match(data, "[\\w\\.+-]+@[\\w\\.-]+\\.[\\w\\.-]+")
-
-    // URI
-    // match(data, "[\\w]+://[^/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?")
-
-    // IP
-    // match(data, "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])")
 }
 
 fun match(data: String, pattern: String) {
-    val start = System.nanoTime()
 
-    val regex = Regex(pattern)
-    var results = regex.findAll(data)
-    val count = results.count()
+    try {
+        val regex = Regex(pattern)
+        
+        val start = System.nanoTime()
+        var results = regex.findAll(data)
+        val count = results.count()
 
-    val elapsed = System.nanoTime() - start
-    
-    println((elapsed / 1e6).toString() + " - " + count)
+        val elapsed = System.nanoTime() - start
+        
+        println((elapsed / 1e6).toString() + " - " + count)
+    } catch (e: Exception) {
+        System.err.println("compilation failed: " + e)
+        exitProcess(EXIT_FAILURE)
+    }
 }

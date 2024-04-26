@@ -2,36 +2,43 @@ use std::time::Instant;
 
 use regex::bytes::RegexBuilder;
 
-fn measure(data: &str, pattern: &str) {
-    let start = Instant::now();
+const EXIT_FAILURE: i32 = 1;
 
+fn measure(data: &str, pattern: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let regex = RegexBuilder::new(pattern).build().unwrap();
-    let count = regex.find_iter(data.as_bytes()).count();
 
+    let start = Instant::now();
+    let count = regex.find_iter(data.as_bytes()).count();
     let elapsed = Instant::now().duration_since(start);
 
     println!("{} - {}", elapsed.as_secs_f64() * 1e3, count);
+    Ok(())
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let path = match std::env::args_os().nth(1) {
-        None => return Err(From::from("Usage: benchmark <filename> regex1 regex2 ... regexN")),
+        None => return Err(From::from("Usage: benchmark <filename> regex num_iterations")),
         Some(path) => path,
     };
-    let data = std::fs::read_to_string(path)?;
 
-    for arg in std::env::args().skip(2) {
-        measure(&data, &arg);
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() != 4 {
+        return Err(From::from("Usage: benchmark <filename> regex num_iterations"));
     }
 
-    // // Email
-    // measure(&data, r"[\w\.+-]+@[\w\.-]+\.[\w\.-]+");
+    let data = std::fs::read_to_string(path)?;
+    let pattern = &args[2];
+    let num_iterations = args[3].parse::<i32>().unwrap();
 
-    // // URI
-    // measure(&data, r"[\w]+://[^/\s?#]+[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?");
-
-    // // IP
-    // measure(&data, r"(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])");
+    for _i in 0..num_iterations {
+        let _result = match measure(&data, &pattern) {
+            Ok(()) => {}
+            Err(error) => {
+                eprintln!("compilation error: {}", error);
+                std::process::exit(EXIT_FAILURE);
+            }
+        };
+    }
 
     Ok(())
 }

@@ -2,16 +2,20 @@ import argparse
 import csv
 import json
 import os
+import csv
+import sys
 import subprocess
+import time
+from haystack import Haystack
+from pattern import Pattern
+from typing import List
 
-import numpy as np
+EXIT_FAILURE = 1
+EXIT_SUCCESS = 0
 
 parser = argparse.ArgumentParser()
 parser.add_argument("testfile", default="test.json", help="Path to the test file", nargs='?')
-parser.add_argument("run_times", type=int, default=10, help="Number of times to run the benchmarks", nargs='?')
 args = parser.parse_args()
-
-RUN_TIMES = args.run_times
 
 BUILDS = {
     "C PCRE2": "gcc -O3 -DNDEBUG engines/c/benchmark.c -I/usr/local/include/ -lpcre2-8 -o engines/c/bin/benchmark",
@@ -45,7 +49,9 @@ COMMANDS = {
     "Dart Native": "/usr/lib/dart/bin/dartaotruntime engines/dart/bin/benchmark.aot",
     "Go": "engines/go/bin/benchmark",
     "Java": "java -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -XX:+AlwaysPreTouch -Xmx256M -Xms256M -classpath engines/java Benchmark",
+    "JavaScript": "node engines/javascript/benchmark.js",
     "Kotlin": "kotlin engines/kotlin/benchmark.jar",
+    "Julia": "julia engines/julia/benchmark.jl",
     "Nim": "engines/nim/bin/benchmark",
     "Nim Regex": "engines/nim/bin/benchmark_regex",
     "Perl": "perl engines/perl/benchmark.pl",
@@ -60,128 +66,131 @@ COMMANDS = {
     "Hyperscan": "python3 engines/hyperscan/benchmark.py",
     "Re2": "python3 engines/re2/benchmark.py"
 }
-path_to_test_file = os.path.join("benchmarks", args.testfile)
-TEST_DATA = json.load(open(path_to_test_file, "r"))
 
 class Benchmark:
 
-    def __init__(self, path_to_haystack: str, patterns: list, run_times: int):
+    def __init__(self, path_to_haystack: str, pattern: str, run_times: int):
         self.path_to_haystack = path_to_haystack
-        self.patterns = patterns
+        self.pattern = pattern
         self.run_times = run_times
 
-    def run(self, command: str):
-        runs = []
-        for i in range(self.run_times):
-            # list that has length len(patterns)
-            times = self.run_one(command)
-            runs.append(times)
-
-        # returns average list of times with length len(pattern)
-        runs = np.array(runs)
-        average_times = runs.mean(axis=0)
-        return average_times.tolist()
-
-    def run_one(self, command: str) -> list:
-        patterns = '" "'.join(self.patterns)
+    def run(self, command: str, engine: str):
         subproc = subprocess.run(
-            f'{command} {self.path_to_haystack} "{patterns}"',
+            f'{command} {self.path_to_haystack} "{self.pattern}" {self.run_times}',
             shell=True,
             stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
+
+        if len(subproc.stderr) > 0:
+            err = subproc.stderr.decode()
+            print(f"-----{engine} start")
+            print(err)
+            print(f"-----{engine} end")
+
+        if subproc.returncode != 0: # some error in the runner program for this regex
+            # we shouldn't print here because the runner programs print the actual error, which is more useful
+            return -1
+
         stdout = subproc.stdout
-        # print(stdout.decode(), stderr.decode())
         times = [
             float(line.split(b"-")[0].strip())
             for line in stdout.splitlines()
             if line.strip()
         ]
-        # print(stderr.decode())
+
+        average_time = sum(times) / len(times)
         print(".", end="", flush=True)
-        return times
+        return average_time
 
 
 class CSVWriter:
-    def __init__(self, path_to_csv: str, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL):
+    def __init__(self, csv_file_name: str, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL):
+        path_to_csv = os.path.join("csv", csv_file_name)
         self.f = open(path_to_csv, "w")
         self.writer = csv.writer(self.f, delimiter=delimiter, quotechar=quotechar, quoting=quoting)
 
-    def write_one_row(self, data, label: str = ""):
+    def write_one_row(self, data: List[float], label: str = ""):
         row = [label] + data if label else data
         self.writer.writerow(row)
 
     def __del__(self):
         self.f.close()
 
-def build_engines():
+def verify_engines(engines):
+    for engine in engines:
+        if engine not in COMMANDS:
+            raise Exception(f"Unrecognized engine {engine}")
+
+def build_engines(engines):
     print("-------------------------------------------", flush=True)
     print("Building compilable files for testing .....", flush=True)
     list_of_test_languages = set.union(*[set(data["engines"]) for data in TEST_DATA])
     for language, build_cmd in BUILDS.items():
         if language in list_of_test_languages:
-            subprocess.run(build_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = subprocess.run(build_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode != 0:
+                print(f"Build {build_cmd} failed")
+                sys.exit(EXIT_FAILURE)
             print(f"{language} built.", flush=True)
 
-def unpack_regexes(regex_files):
-    regexes = []
-    for file in regex_files:
-        with open(file, "r") as f:
-            regexes += [x.strip("\n") for x in f.readlines()]
+def all_engines(data):
+    return set.union(*[set(x["engines"]) for x in data])
 
-    return regexes
+path_to_test_file = os.path.join("benchmarks", args.testfile)
+TEST_DATA = json.load(open(path_to_test_file, "r"))
 
-build_engines()
+engines = all_engines(TEST_DATA)
+verify_engines(engines)
+build_engines(engines)
 
 print("------------------------", flush=True)
 print("Running benchmarks .....", flush=True)
-results = {}
 csv_outputs = []
 
 for test_number, data in enumerate(TEST_DATA):
     print("------------------------------------------", flush=True)
     print(f'Running benchmarks for {data["name"]} ...', flush=True)
-
-    if "regexes_in_file" in data and data["regexes_in_file"]:
-        data["test_regexes"] = unpack_regexes(data["test_regexes"])
+    run_times = data.get("run_times", 10)
 
     for engine in data["engines"]:
+        # print(f"Running engine {engine}\n", file=sys.stderr, flush=True)
+
+        p = Pattern(data["test_regexes"], data.get("regexes_in_file", False))
+        h = Haystack(data["test_string_files"], data.get("split_string_file", False))
+
         test_name_no_json = args.testfile.strip(".json")
         csv_file_name = f"{engine}_{test_name_no_json}[{test_number}].csv"
-        path_to_csv = os.path.join("csv", csv_file_name)
-        csv_outputs.append(path_to_csv)
-        csv_writer = CSVWriter(path_to_csv)
-        csv_writer.write_one_row(label=test_name_no_json, data=list(range(1, len(data["test_regexes"]) + 1)))
+        csv_outputs.append(csv_file_name)
+        csv_writer = CSVWriter(csv_file_name)
+        csv_writer.write_one_row(label=test_name_no_json, data=list(range(1, len(p.patterns) + 1)))
+
+        bad_patterns = []
 
         command = COMMANDS[engine]
         print(f"{engine} running.", end=" ", flush=True)
-
-        for input_path in data["test_string_files"]:
-            input_path = os.path.join(os.path.dirname(__file__), "haystacks", input_path)
-            run_times = data.get("run_times", RUN_TIMES)
-            patterns = data["test_regexes"]
-
-
-            if "split_string_file" in data and data["split_string_file"]:
-                lines = []
-                with open(input_path, "r") as f:
-                    lines = [x.strip() for x in f.readlines()]
-                print(f"running {input_path}, {patterns}, {run_times * len(lines)}", flush=True)
-                for line in lines:
-                    temp_file = os.path.join(os.path.dirname(__file__), "haystacks", f"{data['name']}_temp.txt")
-                    with open(temp_file, "w") as f:
-                        f.write(line)
-                    benchmark = Benchmark(temp_file, patterns, run_times)
-                    average_times = benchmark.run(command)
-                    csv_writer.write_one_row(label=line, data=average_times)
-                    
-                os.remove(temp_file)
-            else:
-                print(f"running {input_path}, {patterns}, {run_times}", flush=True)
-                benchmark = Benchmark(input_path, patterns, run_times)
-                average_times = benchmark.run(command)
-                csv_writer.write_one_row(label=input_path, data=average_times)
-
-            print(f"\n{engine} ran.", flush=True)
+        line = h.get_one_haystack()
+        while line:
+            row = []
+            pattern = p.get_one_pattern()
+            while pattern:
+                start = time.time()
+                if pattern in bad_patterns:
+                    average_time = -1
+                else:
+                    benchmark = Benchmark(line, pattern, run_times)
+                    average_time = benchmark.run(command, engine)
+                    if average_time == -1:
+                        bad_patterns.append(pattern)
+                row += [average_time]
+                # print(f"Ran {pattern} against {line} in {time.time() - start}", file=sys.stderr, flush=True)
+                pattern = p.get_one_pattern()
+            p.reset()
+            csv_writer.write_one_row(data=row, label=str(h.line_index))
+            line = h.get_one_haystack()
+        h.reset()
+        print(f"\n{engine} ran.", flush=True)
+        # print(f"Ran engine {engine}\n", file=sys.stderr, flush=True)
 
     print("------------------------", flush=True)
     print(f"Benchmark results written to files {csv_outputs}", flush=True)

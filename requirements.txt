@@ -2,6 +2,7 @@
 
 hyperscan
 google-re2
+google-re2
 numpy
 django
 matplotlib

@@ -1,19 +1,22 @@
 use Time::HiRes qw(gettimeofday);
+# use Syntax::Keyword::Try;
 
 sub measure {
-    my ($data, $pattern) = @_;
+  my ($data, $pattern) = @_;
+  my $regex = eval { qr/$pattern/ };
+  if ($@) {
+    die "invalid regex: $@" if $@;
+  }
 
-    my $start = Time::HiRes::gettimeofday();
+  my $start = Time::HiRes::gettimeofday();
+  my $count = () = $data =~ /$regex/g;
+  my $elapsed = (Time::HiRes::gettimeofday() - $start) * 1e3;
 
-    my $count = () = $data =~ /$pattern/g;
-
-    my $elapsed = (Time::HiRes::gettimeofday() - $start) * 1e3;
-
-    printf("%f - %d\n", $elapsed, $count);
+  printf("%f - %d\n", $elapsed, $count);
 }
 
-if (@ARGV <= 1) {
-  die "Usage: ./benchmark.pl <filename> regex1 regex2 ...\n";
+if (@ARGV != 3) {
+  die "Usage: ./benchmark.pl <filename> regex numIterations\n";
 }
 
 my ($filename) = @ARGV;
@@ -23,18 +26,10 @@ my $text;
 read $fh, $data, -s $filename;
 close $fh;
 
-for (my $i = 1; $i < @ARGV; $i++) {
-  measure($data, $ARGV[$i]);
+my $pattern = $ARGV[1];
+my $numIterations = int($ARGV[2]);
+
+for (my $i = 0; $i < $numIterations; $i++) {
+  measure($data, $pattern);
 }
-
-# # Email
-# measure $data, '[\w\.+-]+@[\w\.-]+\.[\w\.-]+';
-
-# # URI
-# measure $data, '[\w]+:\/\/[^\/\s?#]+[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?';
-
-# # IP
-# measure $data, '(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])';
-
-
 

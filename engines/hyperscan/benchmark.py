@@ -11,9 +11,7 @@ from typing import Any, Optional
 
 import hyperscan as hs
 
-if len(sys.argv) < 3:
-    print('Usage: python benchmark.py <input_filename> regex1 regex2 ..')
-    sys.exit(1)
+EXIT_FAILURE = 1
 
 # A truthy return value signifies to stop matching
 matches = 0
@@ -24,6 +22,8 @@ def on_match(
     matches += 1
 
 def measure(data, pattern):
+    global matches
+    matches = 0
 
     # compile the pattern
     db = hs.Database(mode=hs.HS_MODE_BLOCK)
@@ -31,19 +31,27 @@ def measure(data, pattern):
         (pattern.encode(), 0),
     )
     expressions, ids = zip(*patterns)
-    time_to_compile = timeit.timeit(stmt=lambda: db.compile(expressions=expressions, ids=ids, elements=len(patterns)), number=1)
-    # print(f"time to compile: {time_to_compile}", file=sys.stderr)
+    try:
+        time_to_compile = timeit.timeit(stmt=lambda: db.compile(expressions=expressions, ids=ids, elements=len(patterns)), number=1)
+    except Exception as e:
+        print(f"compilation error: {e}")
+        sys.exit(EXIT_FAILURE)
 
     # BLOCK MODE
     time_to_search = timeit.timeit(stmt=lambda: db.scan(data.encode(), match_event_handler=on_match), number=1)
-    # print(f"time to search: {time_to_search}", file=sys.stderr)
 
-    global matches
     print(f"{time_to_search * 1e3} - {matches}")
 
+
+if len(sys.argv) != 4:
+    print('Usage: python benchmark.py <input_filename> regex num_iterations')
+    sys.exit(EXIT_FAILURE)
+
+pattern = sys.argv[2]
+num_iterations = int(sys.argv[3])
 
 with open(sys.argv[1], "r") as f: 
     data = f.read()
 
-    for regex in sys.argv[2:]:
-        measure(data, regex)
+    for i in range(num_iterations):
+        measure(data, pattern)

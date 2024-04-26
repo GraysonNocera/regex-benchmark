@@ -1,16 +1,17 @@
 [
-    {
-        "name": "Grep",
-        "description": "This is a testcase",
-        "test_regexes": [
-            "regex",
-            "doubleregex"
+  {
+      "name": "Grep",
+      "description": "This is a testcase",
+      "test_regexes": [
+        "email_regex.txt"
         ],
+        "regexes_in_file": true,
         "test_string_files": [
-            "testing.txt"
+            "email_regex_text.txt"
         ],
-        "engines": [
-            "Grep"
-        ]
-    }
+        "split_string_file": true,
+      "engines": [
+          "grep"
+      ]
+  }
 ]

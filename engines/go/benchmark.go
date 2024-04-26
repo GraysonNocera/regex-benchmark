@@ -7,15 +7,20 @@ import (
     "os"
     "regexp"
     "time"
+    "strconv"
 )
 
+var EXIT_FAILURE int = 1
+
 func measure(data string, pattern string) {
-    start := time.Now()
 
     r, err := regexp.Compile(pattern)
     if err != nil {
         log.Fatal(err)
+        os.Exit(EXIT_FAILURE)
     }
+
+    start := time.Now()
 
     matches := r.FindAllString(data, -1)
     count := len(matches)
@@ -26,8 +31,8 @@ func measure(data string, pattern string) {
 }
 
 func main() {
-    if len(os.Args) <= 2 {
-        fmt.Println("Usage: benchmark <filename> regex1 regex2 ... regexN")
+    if len(os.Args) != 4 {
+        fmt.Println("Usage: benchmark <filename> regex numIterations")
         os.Exit(1)
     }
 
@@ -41,17 +46,10 @@ func main() {
     buf.ReadFrom(filerc)
     data := buf.String()
 
+    pattern := os.Args[2]
+    numIterations, err := strconv.Atoi(os.Args[3])
 
-    for i := 2; i < len(os.Args); i++ {
-        measure(data, os.Args[i])
+    for i := 0; i < numIterations; i++ {
+        measure(data, pattern)
     }
-
-    // // Email
-    // measure(data, `[\w\.+-]+@[\w\.-]+\.[\w\.-]+`)
-
-    // // URI
-    // measure(data, `[\w]+://[^/\s?#]+[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?`)
-
-    // // IP
-    // measure(data, `(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])`)
 }

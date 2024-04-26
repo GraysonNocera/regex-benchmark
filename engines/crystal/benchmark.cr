@@ -1,30 +1,34 @@
 require "benchmark"
 
-if (ARGV.size <= 1)
-  puts "Usage: benchmark <filename> regex1 regex2 ..."
+# this simply takes way too long to build
+
+EXIT_FAILURE = 1
+EXIT_SUCCESS = 0
+
+if (ARGV.size != 3)
+  puts "Usage: benchmark <filename> regex num_iterations"
   exit 1
 end
 
 def measure(data, pattern)
-  count = 0
-  elapsed = Benchmark.measure {
-    count = data.scan(pattern).size
-  }
+  begin
+    count = 0
 
-  puts "#{elapsed.real * 1e3} - #{count}"
+    pattern = Regex.new(pattern)
+    elapsed = Benchmark.measure {
+      count = data.scan(pattern).size
+    }
+    puts "#{elapsed.real * 1e3} - #{count}"
+  rescue ex
+    STDERR.puts ex.message
+    exit(EXIT_FAILURE)
+  end
 end
 
 data = File.read(ARGV[0])
+pattern = ARGV[1]
+num_iterations = ARGV[2].to_i(10)
 
-(1...ARGV.size).each do |i|
-  measure(data, ARGV[i])
+(0...num_iterations).each do |i|
+  measure(data, pattern)
 end
-
-# # Email
-# measure(data, /[\w\.+-]+@[\w\.-]+\.[\w\.-]+/)
-
-# # URI
-# measure(data, /[\w]+:\/\/[^\/\s?#]+[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?/)
-
-# # IP
-# measure(data, /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])/)

@@ -1,0 +1,38 @@
+[
+  {
+      "name": "All engines that are known to work with email regex",
+      "description": "Let's see how much of these work",
+      "test_regexes": [
+          "email_regex.txt"
+      ],
+      "regexes_in_file": true,
+      "test_string_files": [
+          "email_regex_text.txt"
+      ],
+      "split_string_file": true,
+      "engines": [
+          "C++ Boost",
+          "C++ SRELL",
+          "C# .Net Core",
+          "D dmd",
+          "D ldc",
+          "Go",
+          "Java",
+          "JavaScript",
+          "Kotlin",
+          "Julia",
+          "Nim",
+          "Nim Regex",
+          "Perl",
+          "Python 2",
+          "Python 3",
+          "Python PyPy2",
+          "Python PyPy3",
+          "Ruby",
+          "Rust",
+          "grep",
+          "hyperscan",
+          "re2"
+      ]
+  }
+]

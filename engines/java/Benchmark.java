@@ -5,36 +5,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Benchmark {
+    public static int EXIT_FAILURE = 1;
+
     public static void main(String... args) throws IOException {
-        if (args.length <= 1) {
-            System.out.println("Usage: java Benchmark <filename>, regex1, regex2, ...");
-            System.exit(1);
+        if (args.length != 3) {
+            System.out.println("Usage: java Benchmark <filename> regex numIterations");
+            System.exit(EXIT_FAILURE);
         }
 
         final String data = Files.readString(Paths.get(args[0]));
+        final String pattern = args[1];
+        final int numIterations = Integer.parseInt(args[2]);
 
-        for (int i = 1; i < args.length; ++i) {
-            // System.out.println("Regex " + i + ": " + args[i]);
-            measure(data, args[i]);
+        for (int i = 0; i < numIterations; ++i) {
+            measure(data, pattern);
         }
-
-        // measure(data, "[\\w.+-]+@[\\w.-]+\\.[\\w.-]+");
-        // measure(data, "[\\w]+://[^/\\s?#]+[^\\s?#]+(?:\\?[^\\s#]*)?(?:#[^\\s]*)?");
-        // measure(data, "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9])");
     }
 
     
     private static void measure(String data, String pattern) {
-        long startTime = System.nanoTime();
 
-        final Matcher matcher = Pattern.compile(pattern).matcher(data);
-        int count = 0;
-        while (matcher.find()) {
-            ++count;
+        try {
+            final Pattern compiledPattern = Pattern.compile(pattern);
+            long startTime = System.nanoTime();
+            final Matcher matcher = compiledPattern.matcher(data);
+            int count = 0;
+            while (matcher.find()) {
+                ++count;
+            }
+
+            long elapsed = System.nanoTime() - startTime;
+
+            System.out.println(elapsed / 1e6 + " - " + count);
+        } catch (Exception e) {
+            System.err.println("compilation error: " + e);
+            System.exit(EXIT_FAILURE);
         }
-
-        long elapsed = System.nanoTime() - startTime;
-
-        System.out.println(elapsed / 1e6 + " - " + count);
     }
 }

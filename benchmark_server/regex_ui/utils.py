@@ -1,8 +1,9 @@
 import json
 import os
 import subprocess
+import re2
 
-from .constants import BUILDS, ENGINE_STATUS, PROJECT_ROOT, RUN_STATUS
+from .constants import BUILDS, ENGINE_STATUS, PROJECT_ROOT, RUN_STATUS, ENGINES
 from .visualize import plot_result
 
 
@@ -31,7 +32,10 @@ def parse_output(test_name):
         data['state'] = str(RUN_STATUS.NOT_STARTED)
         return data
     
-    if len(error) > 0:
+    if len(remove_engine_failures(error)) > 0:
+        # if we remove all the lines in between (including those lines),
+        # there should be nothing in stderr
+
         data['state'] = str(RUN_STATUS.FAILED)
         data['error'] = error
         return data
@@ -117,6 +121,14 @@ def parse_output(test_name):
         return data
 
     return data
+
+def remove_engine_failures(error):
+    error = ''.join(error)
+    for engine in ENGINES:
+        engine = re2.escape(engine)
+        error = re2.sub(rf'(?s)-----{engine} start.+-----{engine} end', '', error)
+
+    return error
     
 def get_already_running_benchmarks():
     # use ps aux to get the list of running benchmarks
