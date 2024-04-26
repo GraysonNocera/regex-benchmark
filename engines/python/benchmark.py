@@ -20,7 +20,7 @@ def measure(data, pattern):
 
         print(str(elapsed_time * 1e3) + ' - ' + str(len(matches)))
     except Exception as e:
-        print(f"compilation error: {e}", sys.stderr)
+        sys.stderr.write("compilation error: " + str(e))
         sys.exit(EXIT_FAILURE)
 
 
