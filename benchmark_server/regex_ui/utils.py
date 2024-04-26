@@ -31,7 +31,9 @@ def parse_output(test_name):
         data['state'] = str(RUN_STATUS.NOT_STARTED)
         return data
     
-    if len(error) > 0:
+    while len(error) > 0:
+        # 	- example: "-----\[engine_name] start"
+	    #   - example: "-----\[engine_name] end"
         data['state'] = str(RUN_STATUS.FAILED)
         data['error'] = error
         return data
