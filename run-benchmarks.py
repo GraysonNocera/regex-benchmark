@@ -84,9 +84,9 @@ class Benchmark:
 
         if len(subproc.stderr) > 0:
             err = subproc.stderr.decode()
-            print(f"-----{engine} start")
-            print(err)
-            print(f"-----{engine} end")
+            print(f"-----{engine} start", file=sys.stderr, flush=True)
+            print(err, file=sys.stderr, flush=True)
+            print(f"-----{engine} end", file=sys.stderr, flush=True)
 
         if subproc.returncode != 0: # some error in the runner program for this regex
             # we shouldn't print here because the runner programs print the actual error, which is more useful
@@ -169,6 +169,7 @@ for test_number, data in enumerate(TEST_DATA):
 
         command = COMMANDS[engine]
         print(f"{engine} running.", end=" ", flush=True)
+        print(f"running {h.current_path}, {p.patterns}, {len(p) * len(h)}", flush=True)
         line = h.get_one_haystack()
         while line:
             row = []
