@@ -74,12 +74,20 @@ class Benchmark:
         self.pattern = pattern
         self.run_times = run_times
 
-    def run(self, command: str):
+    def run(self, command: str, engine: str):
         subproc = subprocess.run(
             f'{command} {self.path_to_haystack} "{self.pattern}" {self.run_times}',
             shell=True,
             stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
+
+        if len(subproc.stderr) > 0:
+            err = subproc.stderr.decode()
+            print(f"-----{engine} start")
+            print(err)
+            print(f"-----{engine} end")
+
         if subproc.returncode != 0: # some error in the runner program for this regex
             # we shouldn't print here because the runner programs print the actual error, which is more useful
             return -1
@@ -171,7 +179,7 @@ for test_number, data in enumerate(TEST_DATA):
                     average_time = -1
                 else:
                     benchmark = Benchmark(line, pattern, run_times)
-                    average_time = benchmark.run(command)
+                    average_time = benchmark.run(command, engine)
                     if average_time == -1:
                         bad_patterns.append(pattern)
                 row += [average_time]
