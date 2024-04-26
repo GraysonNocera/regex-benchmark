@@ -12,6 +12,9 @@ class Pattern:
 
         self.index = 0
 
+    def __len__(self):
+        return len(self.patterns)
+
     def transform_patterns(self, patterns):
         paths = [os.path.join("patterns", pattern) for pattern in patterns]
         return paths

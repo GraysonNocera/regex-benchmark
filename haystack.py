@@ -11,6 +11,22 @@ class Haystack:
         self.temp_file = os.path.join("haystacks", "temp")
         self.f = open(self.paths[self.path_index], "r") if self.split_file else None
 
+    @property
+    def current_path(self):
+        return self.paths[self.path_index]
+    
+    @property
+    def num_haystacks(self):
+        if self.split_file:
+            return self.get_num_lines()
+        return len(self.paths)
+    
+    def get_num_lines(self):
+        return sum([sum(1 for line in open(path)) for path in self.paths])
+    
+    def __len__(self):
+        return self.num_haystacks
+
     def transform_paths(self, paths):
         paths = [os.path.join("haystacks", path) for path in paths]
         return paths
