@@ -157,7 +157,7 @@ WORKDIR /var/regex
 # CMD ["python3", "/var/regex/run-benchmarks.py", "test_basic.json"]
 # CMD ["python3", "benchmark_server/manage.py", "runserver", "0.0.0.0:8000"]
 
-ENV HEADLESS true
+ENV HEADLESS false
 ENV TEST_FILE test_basic.json
 
 COPY start.sh /var/regex/start.sh
