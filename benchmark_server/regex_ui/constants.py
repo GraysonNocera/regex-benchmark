@@ -3,6 +3,7 @@ from enum import Enum
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../"))
 AVAILABLE_TEXT_FILES = os.listdir(os.path.join(PROJECT_ROOT, "haystacks"))
+AVAILABLE_PATTERN_FILES = os.listdir(os.path.join(PROJECT_ROOT, "patterns"))
 
 ENGINES = [
     "C PCRE2",

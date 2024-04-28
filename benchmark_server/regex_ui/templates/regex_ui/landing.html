@@ -71,6 +71,7 @@
                     });
                     handleNameInputError();
                     editOrAddOption(this, 'id_test_regexes');
+                    showRegexOption('{{ form.regexes_in_file_initial }}');
                 }, false);
 
                 document.getElementById('testForm').addEventListener('submit', function (event) {
@@ -232,38 +233,99 @@
                         }
                     }
                 </script>
+                <script>
+                    function showRegexOption(showFile) {
+                        var fileRegex = document.getElementById("nav_file_regex");
+                        var manualRegex = document.getElementById("nav_manual_regex");
+                        var manualElement = document.getElementById("manual_regex");
+                        var fileElement = document.getElementById("file_regex");
+                        var selectElementManual = document.getElementById("id_test_regexes");
+                        var selectElementFile = document.getElementById("id_test_regexes_file");
+                        var fileCheckbox = document.getElementById("id_regexes_in_file");
+
+
+                        if (showFile == true) {
+                            fileRegex.classList.add("active");
+                            manualRegex.classList.remove("active");
+                            fileElement.hidden = false;
+                            manualElement.hidden = true;
+                            selectElementFile.name = "test_regexes";
+                            selectElementManual.name = "";
+                            fileCheckbox.checked = true;
+                        } else {
+                            fileRegex.classList.remove("active");
+                            manualRegex.classList.add("active");
+                            fileElement.hidden = true;
+                            manualElement.hidden = false;
+                            selectElementFile.name = "";
+                            selectElementManual.name = "test_regexes";
+                            fileCheckbox.checked = false;
+                        }
+                    }
+                </script>
                 <div class="form-row align-items-center">
                     <label for="id_regex"><strong>Regexes</strong></label>
                 </div>
                 <select hidden multiple class="form-control" name="test_regexes" id="id_test_regexes"></select>
+                <input hidden class="form-check-input" type="checkbox" name="regexes_in_file" id="id_regexes_in_file">
 
-                {% if form.selected_test_regexes %}
-                {% for regex in form.selected_test_regexes %}
-                <div class="form-row form-group align-items-center">
-                    <div class="col-md-11">
-                        <input type="text" class="form-control id_test_regexes_class" id="id_regex"
-                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;" required
-                            value="{{ regex }}">
+                <div class="row">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav_file_regex" onclick="showRegexOption(true)">Use File</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" id="nav_manual_regex" onclick="showRegexOption(false)">Enter
+                                Manually</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="manual_regex">
+                    {% if form.selected_test_regexes %}
+                    {% for regex in form.selected_test_regexes %}
+                    <div class="form-row form-group align-items-center">
+                        <div class="col-md-11">
+                            <input type="text" class="form-control id_test_regexes_class" id="id_regex"
+                                onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;" required
+                                value="{{ regex }}">
+                        </div>
+                        <div class="col-sm-1">
+                            <button type="button" class="btn btn-danger"
+                                onclick="this.parentElement.parentElement.remove(); editOrAddOption(this, 'id_test_regexes')">
+                                -
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-sm-1">
-                        <button type="button" class="btn btn-danger"
-                            onclick="this.parentElement.parentElement.remove(); editOrAddOption(this, 'id_test_regexes')">
-                            -
-                        </button>
+                    {% endfor %}
+                    {% endif %}
+                    <div id="last_regex" class="form-row form-group align-items-center">
+                        <div class="col-md-11">
+                            <input type="text" class="form-control id_test_regexes_class" id="id_regex"
+                                onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;"
+                                placeholder="^(\+\d\s)?$" {% if not form.selected_test_regexes %} required {% endif %}>
+                        </div>
+                        <div class="col-sm-1">
+                            <button type="button" class="btn btn-primary" onclick="addInputField()"> + </button>
+                        </div>
                     </div>
                 </div>
-                {% endfor %}
-                {% endif %}
-                <div id="last_regex" class="form-row form-group align-items-center">
-                    <div class="col-md-11">
-                        <input type="text" class="form-control id_test_regexes_class" id="id_regex"
-                            onchange="editOrAddOption(this, 'id_test_regexes');this.oldvalue = this.value;"
-                            placeholder="^(\+\d{1,2}\s)?$" {% if not form.selected_test_regexes %} required {% endif %}>
-                    </div>
-                    <div class="col-sm-1">
-                        <button type="button" class="btn btn-primary" onclick="addInputField()"> + </button>
+
+                <div id="file_regex">
+                    <div class="form-group">
+                        <select required class="form-control" id="id_test_regexes_file">
+                            <option value="" selected disabled>Select text a file name</option>
+                            {% for file in available_pattern_files %}
+                            {% if file in form.selected_test_regexes %}
+                            <option value="{{ file }}" selected>{{ file }}</option>
+                            {% else %}
+                            <option value="{{ file }}">{{ file }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
+
             </div>
 
             <div class="form-group">

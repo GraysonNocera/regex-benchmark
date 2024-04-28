@@ -6,7 +6,8 @@ import time
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
-from .constants import AVAILABLE_TEXT_FILES, ENGINES, PROJECT_ROOT
+from .constants import (AVAILABLE_PATTERN_FILES, AVAILABLE_TEXT_FILES, ENGINES,
+                        PROJECT_ROOT)
 from .forms import BenchmarkForm
 from .utils import (create_dir_if_not_exists, get_already_running_benchmarks,
                     get_previous_runs, parse_output)
@@ -48,11 +49,13 @@ def landing_page(request):
                 form.selected_test_string_file = data[0]['test_string_files'][0]
                 form.selected_test_regexes = data[0]['test_regexes']
                 form.split_string_file_initial = data[0].get('split_string_file', False)
+                form.regexes_in_file_initial = 1 if data[0].get('regexes_in_file', False) else 0
 
     test_files = os.listdir(os.path.join(PROJECT_ROOT, 'benchmarks')) if os.path.exists(os.path.join(PROJECT_ROOT, 'benchmarks')) else []
     data = {
         "engine_list": ENGINES, 
-        "available_text_files": AVAILABLE_TEXT_FILES, 
+        "available_text_files": AVAILABLE_TEXT_FILES,
+        "available_pattern_files": AVAILABLE_PATTERN_FILES,
         "test_files": test_files,
         "form": form,
         "prev_test": request.GET.get('prev_test'),
