@@ -56,7 +56,8 @@ class RUN_STATUS(Enum):
     RUNNING = 2
     COMPLETED = 3
     FAILED = 4
-    CANCELLED = 5
+    PARTIAL_COMPLETED = 5
+    CANCELLED = 6
 
 class ENGINE_STATUS(Enum):
     NOT_STARTED = 0

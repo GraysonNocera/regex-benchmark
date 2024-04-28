@@ -12,7 +12,7 @@ def plot_result(engine_data):
     for result in  engine_data:
         string = result[0]
         for i, time in enumerate(result[1:]):
-            entries.append([i, string, float(time.split(" ms")[0])])
+            entries.append([i, string, float(time.split(" ms")[0] if time != "Error" else 0.0)])
 
     df = pd.DataFrame(entries, columns=['Regex', 'String', 'ExecutionTime'])
     pivot_table = df.pivot(index='Regex', columns='String', values='ExecutionTime')

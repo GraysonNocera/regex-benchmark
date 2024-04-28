@@ -1,9 +1,10 @@
 import json
 import os
 import subprocess
+
 import re2
 
-from .constants import BUILDS, ENGINE_STATUS, PROJECT_ROOT, RUN_STATUS, ENGINES
+from .constants import BUILDS, ENGINE_STATUS, ENGINES, PROJECT_ROOT, RUN_STATUS
 from .visualize import plot_result
 
 
@@ -32,13 +33,18 @@ def parse_output(test_name):
         data['state'] = str(RUN_STATUS.NOT_STARTED)
         return data
     
-    if len(remove_engine_failures(error)) > 0:
+    if len(error) > 0:
         # if we remove all the lines in between (including those lines),
         # there should be nothing in stderr
+        error_parsed, error_remaining = parse_error(error)
 
-        data['state'] = str(RUN_STATUS.FAILED)
-        data['error'] = error
-        return data
+        if len(error_remaining) > 0:
+            data['state'] = str(RUN_STATUS.FAILED)
+            data['error'] = error_remaining
+            return data
+        else:
+            data['error'] = error
+            data['error_parsed'] = error_parsed
 
     if len(output) <= 2:
         data['state'] = str(RUN_STATUS.COMPILING)
@@ -82,6 +88,9 @@ def parse_output(test_name):
 
     if len(output) == 2 + len(engines_to_build) + 4 + (3 * len(test_json['engines'])) + 2:
         data['state'] = str(RUN_STATUS.COMPLETED)
+        if len(data.get('error_parsed', [])) > 0:
+            data['state'] = str(RUN_STATUS.PARTIAL_COMPLETED)
+        
         data['results'] = {}
         data['plots'] = {}
         for engine in test_json['engines']:
@@ -107,7 +116,7 @@ def parse_output(test_name):
                         result[-1][0] = result[-1][0][:20] + "..."
                     
                     try:
-                        result[-1][1:] = ["%.03f ms" % float(x) for x in result[-1][-no_of_regexes:]]
+                        result[-1][1:] = ["%.03f ms" % float(x) if float(x) != -1 else "Error" for x in result[-1][-no_of_regexes:]]
                     except ValueError as e:
                         raise ValueError(f"Error in {csv_file_path} at line {line}: {e}")
                     
@@ -122,13 +131,27 @@ def parse_output(test_name):
 
     return data
 
-def remove_engine_failures(error):
-    error = ''.join(error)
-    for engine in ENGINES:
-        engine = re2.escape(engine)
-        error = re2.sub(rf'(?s)-----{engine} start.+-----{engine} end', '', error)
+def parse_error(error):
+    error_parsed = {}
+    if len(error) > 0:
+        i = 0
+        segments_to_delete = []
+        while i < len(error):
+            if error[i].startswith("-----") and error[i].endswith("start\n"):
+                engine = error[i][5:][:-6].strip()
+                j = i + 1
+                while j < len(error):
+                    if error[j].startswith("-----") and error[j].endswith("end\n"):
+                        error_parsed[engine] = error[i:j+1]
+                        segments_to_delete.append((i, j))
+                        break
+                    j += 1
+            i += 1
 
-    return error
+        for i, j in reversed(segments_to_delete):
+            error = error[:i] + error[j+1:]
+    
+    return error_parsed, error
     
 def get_already_running_benchmarks():
     # use ps aux to get the list of running benchmarks
