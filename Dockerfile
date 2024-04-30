@@ -155,11 +155,11 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 WORKDIR /var/regex
 
 # CMD ["python3", "/var/regex/run-benchmarks.py", "test_basic.json"]
-# CMD ["python3", "benchmark_server/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python3", "benchmark_server/manage.py", "runserver", "0.0.0.0:8000"]
 
-ENV HEADLESS false
-ENV TEST_FILE test_basic.json
+# ENV HEADLESS false
+# ENV TEST_FILE test_basic.json
 
-COPY start.sh /var/regex/start.sh
-CMD "/var/regex/start.sh"
+# COPY start.sh /var/regex/start.sh
+# CMD "/var/regex/start.sh"
 EXPOSE 8000
