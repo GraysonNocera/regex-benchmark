@@ -250,14 +250,16 @@
                             fileElement.hidden = false;
                             manualElement.hidden = true;
                             selectElementFile.name = "test_regexes";
-                            selectElementManual.name = "";
+                            selectElementFile.required = true;
+                            selectElementManual.name = "hidden_test_regexes";
                             fileCheckbox.checked = true;
                         } else {
                             fileRegex.classList.remove("active");
                             manualRegex.classList.add("active");
                             fileElement.hidden = true;
                             manualElement.hidden = false;
-                            selectElementFile.name = "";
+                            selectElementFile.name = "hidden_test_regexes";
+                            selectElementFile.required = false;
                             selectElementManual.name = "test_regexes";
                             fileCheckbox.checked = false;
                         }
