@@ -242,6 +242,7 @@
                         var selectElementManual = document.getElementById("id_test_regexes");
                         var selectElementFile = document.getElementById("id_test_regexes_file");
                         var fileCheckbox = document.getElementById("id_regexes_in_file");
+                        var regex_input_field = document.getElementById("id_regex");
 
 
                         if (showFile == true) {
@@ -253,6 +254,7 @@
                             selectElementFile.required = true;
                             selectElementManual.name = "hidden_test_regexes";
                             fileCheckbox.checked = true;
+                            regex_input_field.required = false;
                         } else {
                             fileRegex.classList.remove("active");
                             manualRegex.classList.add("active");
@@ -262,6 +264,7 @@
                             selectElementFile.required = false;
                             selectElementManual.name = "test_regexes";
                             fileCheckbox.checked = false;
+                            regex_input_field.required = true;
                         }
                     }
                 </script>
