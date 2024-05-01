@@ -91,7 +91,7 @@
                         testNameInput.setCustomValidity('');
                     }
 
-                    var selectElement = document.getElementById('id_test_regexes');
+                    var selectElement = document.getElementsByName('test_regexes');
                     if (selectElement.options.length === 0) {
                         event.preventDefault();
                         alert('Please enter atleast one regex to run the benchmark.');
