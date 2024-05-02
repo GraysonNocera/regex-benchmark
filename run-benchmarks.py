@@ -87,7 +87,7 @@ class Benchmark:
             print(f"-----{engine} start", file=sys.stderr, flush=True)
             print(f"Timeout for {engine} on {self.pattern} against {self.path_to_haystack}", file=sys.stderr, flush=True)
             print(f"-----{engine} end", file=sys.stderr, flush=True)
-            return -1
+            return 300000
 
         if len(subproc.stderr) > 0:
             err = subproc.stderr.decode()
