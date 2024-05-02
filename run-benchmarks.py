@@ -2,13 +2,13 @@ import argparse
 import csv
 import json
 import os
-import csv
-import sys
 import subprocess
+import sys
 import time
+from typing import List
+
 from haystack import Haystack
 from pattern import Pattern
-from typing import List
 
 EXIT_FAILURE = 1
 EXIT_SUCCESS = 0
@@ -75,12 +75,19 @@ class Benchmark:
         self.run_times = run_times
 
     def run(self, command: str, engine: str):
-        subproc = subprocess.run(
-            f'{command} {self.path_to_haystack} "{self.pattern}" {self.run_times}',
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+        try:
+            subproc = subprocess.run(
+                f'{command} {self.path_to_haystack} "{self.pattern}" {self.run_times}',
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=300
+            )
+        except subprocess.TimeoutExpired:
+            print(f"-----{engine} start", file=sys.stderr, flush=True)
+            print(f"Timeout for {engine} on {self.pattern} against {self.path_to_haystack}", file=sys.stderr, flush=True)
+            print(f"-----{engine} end", file=sys.stderr, flush=True)
+            return -1
 
         if len(subproc.stderr) > 0:
             err = subproc.stderr.decode()

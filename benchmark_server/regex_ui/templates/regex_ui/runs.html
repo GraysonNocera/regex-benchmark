@@ -74,7 +74,8 @@
         <div class="container">
             <div class="progress">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                    aria-valuenow="{{ data.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    aria-valuenow="{{ data.progress }}" aria-valuemin="0" aria-valuemax="100">{{ data.progress_text }}
+                </div>
             </div>
         </div>
 
@@ -89,7 +90,7 @@
                     <div class="progress">
                         <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
                             role="progressbar" aria-valuenow="{{ data.running.progress }}" aria-valuemin="0"
-                            aria-valuemax="100"></div>
+                            aria-valuemax="100">{{ data.running.progress_text }}</div>
                     </div>
                 </div>
                 {% elif status == 'ENGINE_STATUS.COMPLETED' %}
