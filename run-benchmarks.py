@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import time
+from threading import Timer
 from typing import List
 
 from haystack import Haystack
@@ -73,24 +74,39 @@ class Benchmark:
         self.path_to_haystack = path_to_haystack
         self.pattern = pattern
         self.run_times = run_times
+        self.killed = False
+
+    def kill_proc(self, proc):
+        self.killed = True
+        proc.kill()
 
     def run(self, command: str, engine: str):
-        try:
-            subproc = subprocess.run(
+        subproc = subprocess.Popen(
                 f'{command} {self.path_to_haystack} "{self.pattern}" {self.run_times}',
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                timeout=300
             )
-        except subprocess.TimeoutExpired:
+        my_timer = Timer(1, self.kill_proc, [subproc])
+        my_timer.start()
+
+        while subproc.poll() is None and my_timer.is_alive():
+            time.sleep(0.01)
+
+        my_timer.cancel()
+
+        if self.killed:
             print(f"-----{engine} start", file=sys.stderr, flush=True)
             print(f"Timeout for {engine} on {self.pattern} against {self.path_to_haystack}", file=sys.stderr, flush=True)
             print(f"-----{engine} end", file=sys.stderr, flush=True)
-            return 300000
+            print(".", end="", flush=True)
+            return 1.0
 
-        if len(subproc.stderr) > 0:
-            err = subproc.stderr.decode()
+
+        stdout, stderr = subproc.communicate()
+
+        if len(stderr) > 0:
+            err = stderr.decode()
             print(f"-----{engine} start", file=sys.stderr, flush=True)
             print(err, file=sys.stderr, flush=True)
             print(f"-----{engine} end", file=sys.stderr, flush=True)
@@ -99,7 +115,6 @@ class Benchmark:
             # we shouldn't print here because the runner programs print the actual error, which is more useful
             return -1
 
-        stdout = subproc.stdout
         times = [
             float(line.split(b"-")[0].strip())
             for line in stdout.splitlines()
