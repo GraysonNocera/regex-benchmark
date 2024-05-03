@@ -84,8 +84,8 @@ def parse_output(test_name):
                     data['running']['progress_text'] = f"{output[index + 1].count('.')}/{total}"
             index += 3
 
-        data['progress'] = sum([1 for status in data['running'].values() if status == str(ENGINE_STATUS.COMPLETED)]) * 100 // len(data['running'])
-        data['progress_text'] = f"{sum([1 for status in data['running'].values() if status == str(ENGINE_STATUS.COMPLETED)])}/{len(data['running'])}"
+        data['progress'] = sum([1 for status in data['running'].values() if status == str(ENGINE_STATUS.COMPLETED)]) * 100 // len(test_json['engines'])
+        data['progress_text'] = f"{sum([1 for status in data['running'].values() if status == str(ENGINE_STATUS.COMPLETED)])}/{len(test_json['engines'])}"
         return data
 
     if len(output) == 2 + len(engines_to_build) + 4 + (3 * len(test_json['engines'])) + 2:

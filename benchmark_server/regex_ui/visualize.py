@@ -39,8 +39,12 @@ def plot_result(engine_data):
     ax.set_zlabel('Average Time (s)')
 
     ax.view_init(elev=30, azim=30)
-    ax.set_xticks(np.arange(len(strings)))
-    ax.set_yticks(np.arange(len(regexes)))
+    x_ticks = np.linspace(0, len(strings) - 1, 8, dtype=int)
+    y_ticks = np.linspace(0, len(regexes) - 1, 8, dtype=int)
+    ax.set_xticks(x_ticks)
+    ax.set_yticks(y_ticks)
+    # ax.set_xticks(np.arange(len(strings)))
+    # ax.set_yticks(np.arange(len(regexes)))
 
     img = BytesIO()
     plt.savefig(img, format='png')
